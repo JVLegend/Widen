@@ -1,0 +1,141 @@
+// Widen - Prisma Schema
+// Church ministry content platform
+// Switch to postgresql provider for production (Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  password       String
+  name           String
+  avatarUrl      String?
+  role           String   // "influencer" | "clipper"
+  bio            String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  socialAccounts SocialAccount[]
+  videos         Video[]
+  campaigns      Campaign[]
+  clips          Clip[]
+  rankings       Ranking[]
+}
+
+model SocialAccount {
+  id         String   @id @default(uuid())
+  userId     String
+  platform   String   // "youtube" | "instagram" | "tiktok"
+  handle     String
+  profileUrl String
+  followers  Int?
+  createdAt  DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clips Clip[]
+
+  @@index([userId])
+}
+
+model Video {
+  id            String   @id @default(uuid())
+  influencerId  String
+  title         String
+  description   String?
+  originalUrl   String
+  platform      String   // "youtube" | "instagram" | "tiktok" | "upload"
+  thumbnailUrl  String?
+  tags          String   @default("[]") // JSON array (SQLite doesn't support String[])
+  status        String   @default("available") // "available" | "in_campaign" | "archived"
+  createdAt     DateTime @default(now())
+
+  influencer     User             @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  campaignVideos CampaignVideo[]
+  clips          Clip[]
+
+  @@index([influencerId])
+}
+
+model Campaign {
+  id            String   @id @default(uuid())
+  influencerId  String
+  name          String
+  budget        Float
+  paymentModel  String   // "cpv" | "fixed_per_clip"
+  cpvRate       Float?
+  fixedRate     Float?
+  platforms     String   @default("[]") // JSON array
+  instructions  String?
+  startDate     DateTime
+  endDate       DateTime
+  status        String   @default("draft") // "draft" | "active" | "paused" | "completed"
+  createdAt     DateTime @default(now())
+
+  influencer     User             @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  campaignVideos CampaignVideo[]
+  clips          Clip[]
+
+  @@index([influencerId])
+}
+
+model CampaignVideo {
+  id         String @id @default(uuid())
+  campaignId String
+  videoId    String
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  video    Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, videoId])
+}
+
+model Clip {
+  id              String    @id @default(uuid())
+  clipperId       String
+  campaignId      String
+  videoId         String
+  socialAccountId String
+  clipUrl         String
+  platform        String    // "youtube" | "instagram" | "tiktok"
+  status          String    @default("pending") // "pending" | "active" | "metrics_collected" | "paid" | "rejected"
+  views           Int       @default(0)
+  likes           Int       @default(0)
+  comments        Int       @default(0)
+  shares          Int       @default(0)
+  earnings        Float     @default(0)
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  clipper       User          @relation(fields: [clipperId], references: [id], onDelete: Cascade)
+  campaign      Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  video         Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@index([clipperId])
+  @@index([campaignId])
+}
+
+model Ranking {
+  id           String    @id @default(uuid())
+  clipperId    String
+  period       String    // "all_time" | "monthly"
+  periodDate   DateTime? // first day of month for monthly
+  totalViews   Int       @default(0)
+  totalClips   Int       @default(0)
+  rankPosition Int
+  badge        String?   // "top1" | "top3" | "top10" | "rising_star"
+  computedAt   DateTime  @default(now())
+
+  clipper User @relation(fields: [clipperId], references: [id], onDelete: Cascade)
+
+  @@index([clipperId])
+  @@index([period, periodDate])
+}
