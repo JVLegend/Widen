@@ -95,8 +95,10 @@ export default function LoginPage() {
 
           <div className="mt-6 rounded-lg border border-amber-100 bg-[#FFFBF0] p-3 text-xs text-gray-600">
             <p className="font-medium mb-1 text-gray-900">{t.login.testAccounts}:</p>
-            <p>{t.roles.church}: grace@example.com / 123456</p>
-            <p>{t.roles.creator}: sarah.chen@example.com / 123456</p>
+            <p>{t.roles.church}: tela@widen.com / 123456</p>
+            <p>{t.roles.church}: cariani@widen.com / 123456</p>
+            <p>{t.roles.creator}: maria.tela@widen.com / 123456</p>
+            <p>{t.roles.creator}: joao.tela@widen.com / 123456</p>
           </div>
         </CardContent>
       </Card>

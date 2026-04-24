@@ -18,7 +18,12 @@ export default function CreatorMissionsPage() {
   useEffect(() => {
     fetch("/api/campaigns?active=true")
       .then((r) => r.json())
-      .then((d) => { setCampaigns(d.data || []); setLoading(false); });
+      .then((d) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const real = (d.data || []).filter((c: any) => !c.influencer?.email?.endsWith("@example.com"));
+        setCampaigns(real);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {

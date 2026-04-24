@@ -11,7 +11,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PLATFORM_LABELS } from "@/lib/constants";
-import { Plus, Eye, Heart, MessageCircle, Share2, BarChart3, ExternalLink, Film } from "lucide-react";
+import { Plus, Eye, Heart, MessageCircle, Share2, BarChart3, ExternalLink, Film, RefreshCw } from "lucide-react";
+
+function isYouTubeUrl(url: string) {
+  try {
+    const h = new URL(url).hostname;
+    return h.endsWith("youtube.com") || h === "youtu.be";
+  } catch {
+    return false;
+  }
+}
 
 type ClipWithDetails = {
   id: string;
@@ -43,6 +52,10 @@ export default function CreatorContentPage() {
   const { locale, t } = useLocale();
   const [clips, setClips] = useState<ClipWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [syncResult, setSyncResult] = useState<{ id: string; ok: boolean; msg: string } | null>(null);
+
+  // Manual metrics fallback dialog
   const [metricsClip, setMetricsClip] = useState<ClipWithDetails | null>(null);
 
   // Metrics form
@@ -67,6 +80,25 @@ export default function CreatorContentPage() {
       .then((data) => { if (!cancelled) { setClips(data.data || []); setLoading(false); } });
     return () => { cancelled = true; };
   }, [user]);
+
+  async function syncMetrics(clip: ClipWithDetails) {
+    setSyncingId(clip.id);
+    setSyncResult(null);
+    try {
+      const res = await fetch(`/api/clips/${clip.id}/sync`, { method: "POST" });
+      const json = await res.json();
+      if (res.ok) {
+        setSyncResult({ id: clip.id, ok: true, msg: `Synced: ${json.data?.synced?.views?.toLocaleString() ?? 0} views` });
+        await fetchClips();
+      } else {
+        setSyncResult({ id: clip.id, ok: false, msg: json.error || "Sync error" });
+      }
+    } catch {
+      setSyncResult({ id: clip.id, ok: false, msg: "Connection error" });
+    } finally {
+      setSyncingId(null);
+    }
+  }
 
   function openMetrics(clip: ClipWithDetails) {
     setMetricsClip(clip);
@@ -166,11 +198,30 @@ export default function CreatorContentPage() {
                       </p>
                     )}
 
+                    {syncResult?.id === clip.id && (
+                      <p className={`mt-1 text-xs ${syncResult.ok ? "text-green-600" : "text-red-500"}`}>
+                        {syncResult.msg}
+                      </p>
+                    )}
+
                     <div className="mt-2 flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => openMetrics(clip)} className="gap-1 text-xs border-amber-100">
-                        <BarChart3 className="h-3 w-3" />
-                        {t.creator.updateMetrics}
-                      </Button>
+                      {isYouTubeUrl(clip.clipUrl) ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => syncMetrics(clip)}
+                          disabled={syncingId === clip.id}
+                          className="gap-1 text-xs border-amber-100"
+                        >
+                          <RefreshCw className={`h-3 w-3 ${syncingId === clip.id ? "animate-spin" : ""}`} />
+                          {syncingId === clip.id ? "Syncing…" : "Sync from YouTube"}
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" onClick={() => openMetrics(clip)} className="gap-1 text-xs border-amber-100">
+                          <BarChart3 className="h-3 w-3" />
+                          {t.creator.updateMetrics}
+                        </Button>
+                      )}
                       <Button variant="ghost" size="sm" onClick={() => window.open(clip.clipUrl, "_blank")} className="gap-1 text-xs">
                         <ExternalLink className="h-3 w-3" />
                         {t.creator.viewContent}

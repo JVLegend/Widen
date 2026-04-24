@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse } from "@/lib/api";
+import { syncClipFromYouTube } from "@/lib/youtube";
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,6 +54,23 @@ export async function POST(request: NextRequest) {
       return apiError("Conta social não pertence a este cortador", 403);
     }
 
+    // Fetch campaign payment info so we can auto-compute earnings on creation
+    const campaign = await prisma.campaign.findUnique({
+      where: { id: campaignId },
+      select: { paymentModel: true, cpvRate: true, fixedRate: true },
+    });
+
+    // Try to auto-fetch YouTube metrics right on creation
+    let ytMetrics: { views: number; likes: number; comments: number; earnings: number } | null = null;
+    if (campaign) {
+      ytMetrics = await syncClipFromYouTube(
+        clipUrl,
+        campaign.paymentModel,
+        campaign.cpvRate,
+        campaign.fixedRate,
+      );
+    }
+
     const clip = await prisma.clip.create({
       data: {
         clipperId,
@@ -62,6 +80,15 @@ export async function POST(request: NextRequest) {
         clipUrl,
         platform,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
+        ...(ytMetrics
+          ? {
+              views: ytMetrics.views,
+              likes: ytMetrics.likes,
+              comments: ytMetrics.comments,
+              earnings: ytMetrics.earnings,
+              status: "metrics_collected",
+            }
+          : {}),
       },
       include: {
         campaign: { select: { id: true, name: true } },
@@ -70,7 +97,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return apiSuccess(clip, 201);
+    return apiSuccess({ ...clip, _ytAutoSync: !!ytMetrics }, 201);
   } catch (err) {
     return apiServerError(err);
   }

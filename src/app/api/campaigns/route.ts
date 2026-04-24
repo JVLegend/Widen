@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         orderBy: { createdAt: "desc" },
         include: {
-          influencer: { select: { id: true, name: true, avatarUrl: true } },
+          influencer: { select: { id: true, name: true, avatarUrl: true, email: true } },
           campaignVideos: { include: { video: true } },
           _count: { select: { clips: true } },
         },
