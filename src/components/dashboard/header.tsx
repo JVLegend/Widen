@@ -73,7 +73,7 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-amber-100 bg-white px-4 md:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-amber-100/80 bg-white/80 backdrop-blur-md px-4 md:px-8">
       {/* Mobile menu */}
       <div className="flex items-center gap-3 md:hidden">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -136,10 +136,10 @@ export function Header() {
         {/* Language switcher */}
         <Link
           href={switchLangPath}
-          className="flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          className="flex items-center gap-1.5 rounded-full border border-amber-100 bg-white/60 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:border-amber-300 hover:bg-white hover:text-gray-900"
         >
-          <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{t.nav.switchLang}</span>
+          <Globe className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline uppercase tracking-wider">{locale === "en" ? "EN" : "BR"}</span>
         </Link>
 
         <DropdownMenu>

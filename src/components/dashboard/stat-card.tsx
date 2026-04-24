@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -9,20 +8,41 @@ interface StatCardProps {
 }
 
 export function StatCard({ icon: Icon, label, value, description }: StatCardProps) {
+  const displayValue = typeof value === "number" ? value.toLocaleString("en-US") : value;
+
   return (
-    <Card className="border-amber-100 bg-white">
-      <CardContent className="flex items-center gap-4 p-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#F5A623]/10">
-          <Icon className="h-6 w-6 text-[#F5A623]" />
+    <div className="group card-editorial relative overflow-hidden p-5">
+      {/* Decorative honeycomb cell — floats in the corner */}
+      <div
+        aria-hidden
+        className="hex-clip pointer-events-none absolute -right-6 -top-6 h-24 w-24 bg-gradient-to-br from-[#FFF1CF] to-[#FFE3A0] opacity-60 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6"
+      />
+      <div
+        aria-hidden
+        className="hex-clip pointer-events-none absolute -right-3 top-10 h-10 w-10 bg-[#F5A623]/15"
+      />
+
+      <div className="relative flex items-start justify-between">
+        <div className="flex h-9 w-9 items-center justify-center hex-clip bg-[#F5A623] text-white shadow-[0_4px_14px_-2px_rgba(245,166,35,0.55)]">
+          <Icon className="h-4 w-4" />
         </div>
-        <div>
-          <p className="text-sm text-gray-600">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{typeof value === "number" ? value.toLocaleString("en-US") : value}</p>
-          {description && (
-            <p className="text-xs text-gray-600">{description}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      <div className="relative mt-6">
+        <p className="eyebrow">{label}</p>
+        <p className="numeric-display mt-1 text-4xl font-medium text-gray-900 leading-none">
+          {displayValue}
+        </p>
+        {description && (
+          <p className="mt-2 text-xs text-gray-500">{description}</p>
+        )}
+      </div>
+
+      {/* Bottom hairline accent */}
+      <div
+        aria-hidden
+        className="relative mt-5 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-[#F5A623] via-[#F5A623]/40 to-transparent transition-transform duration-500 group-hover:scale-x-100"
+      />
+    </div>
   );
 }

@@ -17,11 +17,15 @@ export default function DashboardLayout({
 
   return (
     <AuthGuard allowedRole={allowedRole}>
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="relative flex min-h-screen bg-honeycomb-soft">
         <Sidebar />
         <div className="flex flex-1 flex-col">
           <Header />
-          <main className="flex-1 p-4 md:p-6">{children}</main>
+          <main className="relative flex-1 px-4 py-6 md:px-8 md:py-8">
+            <div key={pathname} className="rise mx-auto max-w-[1400px]">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </AuthGuard>

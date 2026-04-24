@@ -12,8 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Video, TrendingUp } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 
-const hexClip = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
-
 export default function SignupPage() {
   return (
     <Suspense>
@@ -99,68 +97,83 @@ function SignupForm() {
 
   if (step === "role") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FFFBF0] px-4">
-        <div className="w-full max-w-2xl space-y-6">
-          <div className="text-center">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-honeycomb px-4 py-10">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="hex-clip absolute left-[-4%] top-[12%] h-32 w-32 bg-[#F5A623]/12" />
+          <div className="hex-clip absolute right-[-3%] bottom-[10%] h-40 w-40 bg-[#F5A623]/10" />
+        </div>
+
+        <div className="relative w-full max-w-3xl space-y-10">
+          <div className="text-center rise">
             <div
-              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center bg-[#F5A623] text-white"
-              style={{ clipPath: hexClip }}
+              className="hex-clip bee-pulse mx-auto mb-5 flex h-14 w-14 items-center justify-center bg-gradient-to-br from-[#F5A623] to-[#E09000] text-white"
             >
-              <span className="text-lg">🐝</span>
+              <span className="text-xl">🐝</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{t.signup.title}</h1>
-            <p className="mt-2 text-gray-600">{t.signup.subtitle}</p>
+            <span className="eyebrow">Step 1 of 2 · Choose your path</span>
+            <h1 className="font-display mt-3 text-[clamp(2rem,4vw,3rem)] font-medium leading-tight tracking-tight text-gray-900">
+              {t.signup.title}
+            </h1>
+            <p className="mt-3 text-gray-600 max-w-md mx-auto">{t.signup.subtitle}</p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card
-              className="cursor-pointer border-amber-100 bg-white transition-all hover:border-[#F5A623] hover:shadow-md"
+          <div className="grid gap-5 md:grid-cols-2">
+            <button
               onClick={() => selectRole("influencer")}
+              className="card-editorial rise rise-1 group relative overflow-hidden p-7 text-left"
             >
-              <CardHeader className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F5A623]/10">
-                  <Video className="h-7 w-7 text-[#F5A623]" />
+              <div aria-hidden className="hex-clip absolute -right-6 -top-6 h-24 w-24 bg-gradient-to-br from-[#FFF1CF] to-[#FFE3A0] opacity-60 transition-transform duration-500 group-hover:scale-110" />
+              <div className="relative">
+                <div className="hex-clip flex h-12 w-12 items-center justify-center bg-[#F5A623] text-white shadow-[0_6px_18px_-4px_rgba(245,166,35,0.5)]">
+                  <Video className="h-5 w-5" />
                 </div>
-                <CardTitle className="mt-2 text-gray-900">{t.signup.roleChurch}</CardTitle>
-                <CardDescription className="text-gray-600">
-                  {t.signup.roleChurchDesc}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-600">
-                <ul className="space-y-1">
+                <span className="eyebrow mt-5 block">Role · Publisher</span>
+                <h3 className="font-display mt-1 text-2xl font-medium text-gray-900">
+                  {t.signup.roleChurch}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600">{t.signup.roleChurchDesc}</p>
+                <ul className="mt-5 space-y-1.5 text-sm text-gray-700">
                   {t.signup.roleChurchFeatures.map((feature, i) => (
-                    <li key={i}>• {feature}</li>
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#F5A623]" />
+                      {feature}
+                    </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
+                <div className="mt-6 h-px origin-left scale-x-0 bg-gradient-to-r from-[#F5A623] to-transparent transition-transform duration-500 group-hover:scale-x-100" />
+              </div>
+            </button>
 
-            <Card
-              className="cursor-pointer border-amber-100 bg-white transition-all hover:border-[#F5A623] hover:shadow-md"
+            <button
               onClick={() => selectRole("clipper")}
+              className="card-editorial rise rise-2 group relative overflow-hidden p-7 text-left"
             >
-              <CardHeader className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F5A623]/10">
-                  <TrendingUp className="h-7 w-7 text-[#F5A623]" />
+              <div aria-hidden className="hex-clip absolute -right-6 -top-6 h-24 w-24 bg-gradient-to-br from-[#FFF1CF] to-[#FFE3A0] opacity-60 transition-transform duration-500 group-hover:scale-110" />
+              <div className="relative">
+                <div className="hex-clip flex h-12 w-12 items-center justify-center bg-[#F5A623] text-white shadow-[0_6px_18px_-4px_rgba(245,166,35,0.5)]">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
-                <CardTitle className="mt-2 text-gray-900">{t.signup.roleCreator}</CardTitle>
-                <CardDescription className="text-gray-600">
-                  {t.signup.roleCreatorDesc}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-600">
-                <ul className="space-y-1">
+                <span className="eyebrow mt-5 block">Role · Creator</span>
+                <h3 className="font-display mt-1 text-2xl font-medium text-gray-900">
+                  {t.signup.roleCreator}
+                </h3>
+                <p className="mt-2 text-sm text-gray-600">{t.signup.roleCreatorDesc}</p>
+                <ul className="mt-5 space-y-1.5 text-sm text-gray-700">
                   {t.signup.roleCreatorFeatures.map((feature, i) => (
-                    <li key={i}>• {feature}</li>
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[#F5A623]" />
+                      {feature}
+                    </li>
                   ))}
                 </ul>
-              </CardContent>
-            </Card>
+                <div className="mt-6 h-px origin-left scale-x-0 bg-gradient-to-r from-[#F5A623] to-transparent transition-transform duration-500 group-hover:scale-x-100" />
+              </div>
+            </button>
           </div>
 
           <div className="text-center text-sm text-gray-600">
             {t.signup.haveAccount}{" "}
-            <Link href={`/${locale}/login`} className="text-[#F5A623] hover:underline">
+            <Link href={`/${locale}/login`} className="font-medium text-[#F5A623] underline-offset-4 hover:underline">
               {t.signup.signIn}
             </Link>
           </div>

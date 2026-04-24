@@ -53,9 +53,10 @@ export default function ChurchHomePage() {
   }, [user]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-2 border-b border-amber-100/80 pb-6">
+        <span className="eyebrow">Dashboard · Ministry</span>
+        <h1 className="font-display text-[clamp(1.85rem,3.5vw,2.75rem)] font-medium leading-[1.05] tracking-tight text-gray-900">
           {t.church.welcome.replace("{name}", user?.name || "")}
         </h1>
       </div>
