@@ -28,7 +28,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      const session = JSON.parse(localStorage.getItem("cortesai_session") || "{}");
+      const session = JSON.parse(localStorage.getItem("widen_session") || "{}");
       router.push(session.role === "influencer" ? `/${locale}/church` : `/${locale}/creator`);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.login.error);
