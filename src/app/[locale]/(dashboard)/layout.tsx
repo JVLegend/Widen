@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AuthGuard } from "@/components/dashboard/auth-guard";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
+import { FloatingHelp } from "@/components/dashboard/floating-help";
 
 export default function DashboardLayout({
   children,
@@ -27,6 +28,7 @@ export default function DashboardLayout({
             </div>
           </main>
         </div>
+        <FloatingHelp />
       </div>
     </AuthGuard>
   );

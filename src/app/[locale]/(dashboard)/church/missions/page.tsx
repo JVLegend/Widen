@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Plus, Megaphone, Film, Calendar } from "lucide-react";
+import { HelpButton } from "@/components/dashboard/help-button";
 import type { Campaign } from "@prisma/client";
 
 type CampaignWithDetails = Campaign & {
@@ -59,27 +60,27 @@ export default function ChurchMissionsPage() {
     return (
       <Link href={`/${locale}/church/missions/${c.id}`}>
         <Card className="transition-colors hover:bg-gray-50 active:scale-[0.99] bg-white border border-amber-100 rounded-xl">
-          <CardContent className="p-4 sm:p-4">
+          <CardContent className="p-3">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="text-base font-medium text-gray-900 sm:text-sm">{c.name}</h3>
-              <Badge variant={statusVariant[c.status] || "outline"}>
+              <h3 className="text-sm font-medium text-gray-900">{c.name}</h3>
+              <Badge variant={statusVariant[c.status] || "outline"} className="text-[10px]">
                 {t.missionStatuses[c.status as keyof typeof t.missionStatuses] || c.status}
               </Badge>
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-gray-600 sm:gap-2 sm:text-xs">
-              <div className="flex items-center gap-1.5">
-                <Megaphone className="h-4 w-4 sm:h-3 sm:w-3" />
+            <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
+              <div className="flex items-center gap-1">
+                <Megaphone className="h-3 w-3" />
                 {t.common.pointsSymbol} {Math.round(c.budget).toLocaleString()}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Film className="h-4 w-4 sm:h-3 sm:w-3" />
+              <div className="flex items-center gap-1">
+                <Film className="h-3 w-3" />
                 {c._count.clips} {t.church.statsContent.toLowerCase()}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4 sm:h-3 sm:w-3" />
+              <div className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
                 {new Date(c.startDate).toLocaleDateString()} - {new Date(c.endDate).toLocaleDateString()}
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 truncate">
                 {platforms.map((p) => PLATFORM_LABELS[p] || p).join(", ")}
               </div>
             </div>
@@ -104,10 +105,29 @@ export default function ChurchMissionsPage() {
           <h1 className="text-2xl font-bold text-gray-900">{t.church.missionsTitle}</h1>
           <p className="text-sm text-gray-600">{campaigns.length} {t.church.statsMissions.toLowerCase()}</p>
         </div>
-        <Button render={<Link href={`/${locale}/church/missions/new`} />} className="h-12 w-full gap-2 text-base bg-[#F5A623] hover:bg-[#E09000] text-white sm:h-9 sm:w-auto sm:text-sm">
-          <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
-          {t.church.newMission}
-        </Button>
+        <div className="flex items-center gap-2">
+          <HelpButton
+            title={{ en: "How to use — My Campaigns", br: "Como usar — Minhas Campanhas" }}
+            content={{
+              en: [
+                "Active: campaigns live and accepting clips.",
+                "Drafts: campaigns you saved but haven't published. Tap to open and edit.",
+                "Ended: paused or completed campaigns.",
+                "Tap 'New mission' to launch a campaign and pick sermons for creators to clip.",
+              ],
+              br: [
+                "Ativas: campanhas no ar aceitando cortes.",
+                "Rascunhos: campanhas salvas mas nao publicadas. Toque para abrir e editar.",
+                "Encerradas: campanhas pausadas ou concluidas.",
+                "Toque em 'Nova missao' para lancar uma campanha e escolher sermoes para os creators cortarem.",
+              ],
+            }}
+          />
+          <Button render={<Link href={`/${locale}/church/missions/new`} />} className="h-12 w-full gap-2 text-base bg-[#F5A623] hover:bg-[#E09000] text-white sm:h-9 sm:w-auto sm:text-sm">
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
+            {t.church.newMission}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="active">
@@ -117,19 +137,19 @@ export default function ChurchMissionsPage() {
           <TabsTrigger value="ended" className="flex-1 py-2.5 text-sm sm:flex-initial sm:py-1.5">{t.church.completedMissions} ({ended.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="active" className="mt-4 space-y-3">
+        <TabsContent value="active" className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {active.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-600">{t.church.noActiveMissions}</p>
           ) : active.map((c) => <CampaignCard key={c.id} campaign={c} />)}
         </TabsContent>
 
-        <TabsContent value="drafts" className="mt-4 space-y-3">
+        <TabsContent value="drafts" className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {drafts.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-600">{t.church.noDrafts}</p>
           ) : drafts.map((c) => <CampaignCard key={c.id} campaign={c} />)}
         </TabsContent>
 
-        <TabsContent value="ended" className="mt-4 space-y-3">
+        <TabsContent value="ended" className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {ended.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-600">{t.church.noCompleted}</p>
           ) : ended.map((c) => <CampaignCard key={c.id} campaign={c} />)}

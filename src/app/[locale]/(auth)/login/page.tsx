@@ -36,6 +36,14 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-honeycomb px-4 py-10">
+      {/* Back to home */}
+      <Link
+        href={`/${locale}`}
+        className="absolute left-4 top-4 z-10 flex items-center gap-1.5 rounded-full border border-amber-100 bg-white/80 px-3 py-1.5 text-xs font-medium text-gray-700 backdrop-blur transition-all hover:border-amber-300 hover:bg-white hover:text-gray-900"
+      >
+        <span aria-hidden>←</span>
+        <span>{locale === "br" ? "Voltar" : "Back to home"}</span>
+      </Link>
       {/* Ambient hexagons — decorative parallax */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="hex-clip absolute left-[-6%] top-[8%] h-40 w-40 bg-[#F5A623]/10" />

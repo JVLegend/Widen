@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse } from "@/lib/api";
-import { syncClipFromYouTube } from "@/lib/youtube";
+import { syncClipFromYouTube, extractYouTubeVideoId } from "@/lib/youtube";
 
 export async function GET(request: NextRequest) {
   try {
@@ -71,6 +71,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const ytId = extractYouTubeVideoId(clipUrl);
+    const thumbnailUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+
     const clip = await prisma.clip.create({
       data: {
         clipperId,
@@ -78,6 +81,7 @@ export async function POST(request: NextRequest) {
         videoId,
         socialAccountId,
         clipUrl,
+        thumbnailUrl,
         platform,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         ...(ytMetrics

@@ -54,7 +54,7 @@ export default function NewMissionPage() {
     );
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(statusOverride: "active" | "draft" = "active") {
     setError("");
     setLoading(true);
     try {
@@ -64,15 +64,15 @@ export default function NewMissionPage() {
         body: JSON.stringify({
           influencerId: user!.userId,
           name,
-          budget: parseFloat(budget),
+          budget: parseFloat(budget || "0"),
           paymentModel,
           cpvRate: cpvRate ? parseFloat(cpvRate) : null,
           fixedRate: fixedRate ? parseFloat(fixedRate) : null,
           platforms,
           instructions,
-          startDate,
-          endDate,
-          status: "active",
+          startDate: startDate || new Date().toISOString().slice(0, 10),
+          endDate: endDate || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+          status: statusOverride,
           videoIds: selectedVideoIds,
         }),
       });
@@ -285,16 +285,21 @@ export default function NewMissionPage() {
           {step === 1 ? t.common.back : (locale === "br" ? "Anterior" : "Previous")}
         </Button>
 
-        {step < 3 ? (
-          <Button onClick={() => setStep(step + 1)} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
-            {locale === "br" ? "Proximo" : "Next"}
-            <ChevronRight className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => handleSubmit("draft")} disabled={loading || !name} className="border-amber-100 text-gray-900">
+            {locale === "br" ? "Salvar rascunho" : "Save draft"}
           </Button>
-        ) : (
-          <Button onClick={handleSubmit} disabled={loading} className="bg-[#F5A623] hover:bg-[#E09000] text-white">
-            {loading ? t.common.loading : (locale === "br" ? "Publicar Missao" : "Publish Mission")}
-          </Button>
-        )}
+          {step < 3 ? (
+            <Button onClick={() => setStep(step + 1)} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
+              {locale === "br" ? "Proximo" : "Next"}
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={() => handleSubmit("active")} disabled={loading} className="bg-[#F5A623] hover:bg-[#E09000] text-white">
+              {loading ? t.common.loading : (locale === "br" ? "Publicar Missao" : "Publish Mission")}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

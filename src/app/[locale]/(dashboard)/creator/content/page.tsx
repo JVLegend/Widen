@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Plus, Eye, Heart, MessageCircle, Share2, BarChart3, ExternalLink, Film, RefreshCw } from "lucide-react";
+import { HelpButton } from "@/components/dashboard/help-button";
 
 function isYouTubeUrl(url: string) {
   try {
@@ -20,6 +21,26 @@ function isYouTubeUrl(url: string) {
   } catch {
     return false;
   }
+}
+
+function ytIdFromUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return u.pathname.slice(1).split("/")[0] || null;
+    if (u.hostname.endsWith("youtube.com")) {
+      const m = u.pathname.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+      if (m) return m[1];
+      return u.searchParams.get("v");
+    }
+  } catch {}
+  return null;
+}
+
+function thumbFor(clip: { thumbnailUrl: string | null; video: { thumbnailUrl: string | null }; clipUrl: string }): string | null {
+  if (clip.thumbnailUrl) return clip.thumbnailUrl;
+  if (clip.video.thumbnailUrl) return clip.video.thumbnailUrl;
+  const id = ytIdFromUrl(clip.clipUrl);
+  return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
 }
 
 type ClipWithDetails = {
@@ -35,6 +56,7 @@ type ClipWithDetails = {
   publishedAt: string | null;
   createdAt: string;
   campaign: { id: string; name: string; paymentModel: string; cpvRate: number | null; fixedRate: number | null };
+  thumbnailUrl: string | null;
   video: { id: string; title: string; platform: string; thumbnailUrl: string | null };
   socialAccount: { id: string; platform: string; handle: string };
 };
@@ -66,7 +88,7 @@ export default function CreatorContentPage() {
 
   const fetchClips = useCallback(async () => {
     if (!user) return;
-    const res = await fetch(`/api/clips?clipperId=${user.userId}`);
+    const res = await fetch(`/api/clips?clipperId=${user.userId}`, { cache: "no-store" });
     const data = await res.json();
     setClips(data.data || []);
     setLoading(false);
@@ -75,7 +97,7 @@ export default function CreatorContentPage() {
   useEffect(() => {
     let cancelled = false;
     if (!user) return;
-    fetch(`/api/clips?clipperId=${user.userId}`)
+    fetch(`/api/clips?clipperId=${user.userId}`, { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => { if (!cancelled) { setClips(data.data || []); setLoading(false); } });
     return () => { cancelled = true; };
@@ -140,10 +162,27 @@ export default function CreatorContentPage() {
           <h1 className="text-2xl font-bold text-gray-900">{t.creator.contentTitle}</h1>
           <p className="text-sm text-gray-600">{t.creator.contentSubtitle}</p>
         </div>
-        <Button render={<Link href={`/${locale}/creator/content/new`} />} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
-          <Plus className="h-4 w-4" />
-          {t.creator.quickSubmitContent}
-        </Button>
+        <div className="flex items-center gap-2">
+          <HelpButton
+            title={{ en: "How to use — My Content", br: "Como usar — Meus Cortes" }}
+            content={{
+              en: [
+                "This list shows every clip you submitted. Tap 'Submit' to add a new clip URL.",
+                "If the clip is on YouTube, use 'Sync from YouTube' to pull views/likes/comments automatically.",
+                "For other platforms, tap 'Update metrics' to enter numbers manually.",
+              ],
+              br: [
+                "Esta lista mostra cada corte enviado. Toque em 'Enviar' para adicionar uma nova URL.",
+                "Se o corte e do YouTube, use 'Sync from YouTube' para puxar views/likes/comments automaticamente.",
+                "Para outras plataformas, toque em 'Atualizar metricas' e insira os numeros manualmente.",
+              ],
+            }}
+          />
+          <Button render={<Link href={`/${locale}/creator/content/new`} />} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
+            <Plus className="h-4 w-4" />
+            {t.creator.quickSubmitContent}
+          </Button>
+        </div>
       </div>
 
       {clips.length === 0 ? (
@@ -160,8 +199,8 @@ export default function CreatorContentPage() {
             <Card key={clip.id} className="bg-white border border-amber-100 rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  {clip.video.thumbnailUrl && (
-                    <img src={clip.video.thumbnailUrl} alt="" className="h-16 w-28 shrink-0 rounded object-cover" />
+                  {thumbFor(clip) && (
+                    <img src={thumbFor(clip)!} alt="" className="h-16 w-28 shrink-0 rounded object-cover" />
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">

@@ -103,6 +103,7 @@ model Clip {
   videoId         String
   socialAccountId String
   clipUrl         String
+  thumbnailUrl    String?
   platform        String    // "youtube" | "instagram" | "tiktok"
   status          String    @default("pending") // "pending" | "active" | "metrics_collected" | "paid" | "rejected"
   views           Int       @default(0)

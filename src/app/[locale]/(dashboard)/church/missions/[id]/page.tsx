@@ -9,7 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PLATFORM_LABELS } from "@/lib/constants";
-import { Eye, Film, Sparkles, Pause, Play, ArrowLeft } from "lucide-react";
+import { Eye, Film, Sparkles, Pause, Play, ArrowLeft, Pencil } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { HelpButton } from "@/components/dashboard/help-button";
 
 export default function MissionDetailPage() {
   const params = useParams();
@@ -18,6 +23,46 @@ export default function MissionDetailPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [campaign, setCampaign] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", budget: "", instructions: "", startDate: "", endDate: "" });
+  const [saving, setSaving] = useState(false);
+
+  function openEdit() {
+    if (!campaign) return;
+    setEditForm({
+      name: campaign.name || "",
+      budget: String(campaign.budget ?? ""),
+      instructions: campaign.instructions || "",
+      startDate: campaign.startDate ? new Date(campaign.startDate).toISOString().slice(0, 10) : "",
+      endDate: campaign.endDate ? new Date(campaign.endDate).toISOString().slice(0, 10) : "",
+    });
+    setEditOpen(true);
+  }
+
+  async function saveEdit() {
+    if (!campaign) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/campaigns/${campaign.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editForm.name,
+          budget: parseFloat(editForm.budget) || 0,
+          instructions: editForm.instructions,
+          startDate: editForm.startDate,
+          endDate: editForm.endDate,
+        }),
+      });
+      if (res.ok) {
+        const j = await res.json();
+        setCampaign({ ...campaign, ...j.data });
+        setEditOpen(false);
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
 
   useEffect(() => {
     fetch(`/api/campaigns/${params.id}`)
@@ -67,11 +112,51 @@ export default function MissionDetailPage() {
             </span>
           </div>
         </div>
+        <Button variant="outline" onClick={openEdit} className="gap-2 border-amber-100 text-gray-900">
+          <Pencil className="h-4 w-4" />
+          {locale === "br" ? "Editar" : "Edit"}
+        </Button>
         <Button variant="outline" onClick={toggleStatus} className="gap-2 border-amber-100 text-gray-900">
           {campaign.status === "active" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           {campaign.status === "active" ? t.church.togglePause : t.church.toggleActive}
         </Button>
       </div>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{locale === "br" ? "Editar missao" : "Edit mission"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <div className="space-y-1">
+              <Label>{t.church.missionName}</Label>
+              <Input value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="bg-white border-amber-100" />
+            </div>
+            <div className="space-y-1">
+              <Label>{t.church.missionBudget} ({t.common.pointsSymbol})</Label>
+              <Input type="number" value={editForm.budget} onChange={(e) => setEditForm({ ...editForm, budget: e.target.value })} className="bg-white border-amber-100" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label>{t.church.missionStart}</Label>
+                <Input type="date" value={editForm.startDate} onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })} className="bg-white border-amber-100" />
+              </div>
+              <div className="space-y-1">
+                <Label>{t.church.missionEnd}</Label>
+                <Input type="date" value={editForm.endDate} onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })} className="bg-white border-amber-100" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label>{t.church.missionInstructions}</Label>
+              <Textarea rows={3} value={editForm.instructions} onChange={(e) => setEditForm({ ...editForm, instructions: e.target.value })} className="bg-white border-amber-100" />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setEditOpen(false)} className="border-amber-100">{t.common.cancel}</Button>
+              <Button onClick={saveEdit} disabled={saving} className="bg-[#F5A623] hover:bg-[#E09000] text-white">{saving ? t.common.loading : t.common.save}</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard icon={Eye} label={t.church.statsReach} value={totalViews.toLocaleString()} />

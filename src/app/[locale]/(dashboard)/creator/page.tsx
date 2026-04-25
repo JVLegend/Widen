@@ -10,9 +10,12 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Eye, Film, Sparkles, Megaphone, Plus, ArrowRight } from "lucide-react";
+import { HelpButton } from "@/components/dashboard/help-button";
 
 type ClipSummary = {
   id: string;
+  clipUrl: string;
+  thumbnailUrl: string | null;
   platform: string;
   status: string;
   views: number;
@@ -33,8 +36,8 @@ export default function CreatorHomePage() {
   useEffect(() => {
     if (!user) return;
     Promise.all([
-      fetch(`/api/clips?clipperId=${user.userId}`).then((r) => r.json()),
-      fetch("/api/campaigns?active=true").then((r) => r.json()),
+      fetch(`/api/clips?clipperId=${user.userId}`, { cache: "no-store" }).then((r) => r.json()),
+      fetch("/api/campaigns?active=true", { cache: "no-store" }).then((r) => r.json()),
     ]).then(([clipData, campData]) => {
       setClips(clipData.data || []);
       setCampaignCount((campData.data || []).length);
@@ -57,10 +60,29 @@ export default function CreatorHomePage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2 border-b border-amber-100/80 pb-6">
-        <span className="eyebrow">Dashboard · Creator</span>
-        <h1 className="font-display text-[clamp(1.85rem,3.5vw,2.75rem)] font-medium leading-[1.05] tracking-tight text-gray-900">
-          {t.creator.welcome.replace("{name}", user?.name || t.roles.creator)}
-        </h1>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="eyebrow">Dashboard · Creator</span>
+            <h1 className="font-display text-[clamp(1.85rem,3.5vw,2.75rem)] font-medium leading-[1.05] tracking-tight text-gray-900">
+              {t.creator.welcome.replace("{name}", user?.name || t.roles.creator)}
+            </h1>
+          </div>
+          <HelpButton
+            title={{ en: "How to use — Creator home", br: "Como usar — Home do Creator" }}
+            content={{
+              en: [
+                "This is your mission control. Stats show your total content, reach and impact points.",
+                "Tap 'View missions' to browse campaigns from churches, then submit your clip URL.",
+                "Recent items are clickable — they open your published clip in a new tab.",
+              ],
+              br: [
+                "Esta e sua central de missao. Os stats mostram conteudo total, alcance e pontos de impacto.",
+                "Toque em 'Missoes' para ver campanhas das igrejas e enviar sua URL de corte.",
+                "Itens recentes sao clicaveis — abrem seu corte publicado em nova aba.",
+              ],
+            }}
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -101,25 +123,44 @@ export default function CreatorHomePage() {
             <p className="py-4 text-center text-sm text-gray-600">{t.creator.noContent}</p>
           ) : (
             <div className="space-y-3">
-              {recentClips.map((clip) => (
-                <div key={clip.id} className="flex items-center gap-3 rounded-lg border border-amber-100 p-3">
-                  {clip.video.thumbnailUrl && (
-                    <img src={clip.video.thumbnailUrl} alt="" className="h-10 w-16 rounded object-cover" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-gray-900">{clip.campaign.name}</p>
-                    <p className="text-xs text-gray-600">
-                      {PLATFORM_LABELS[clip.platform]} • @{clip.socialAccount.handle}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{clip.views.toLocaleString()} {t.common.reach}</p>
-                    <Badge variant="outline" className="text-[10px]">
-                      {t.creator.contentStatus[clip.status as keyof typeof t.creator.contentStatus] || clip.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+              {recentClips.map((clip) => {
+                const ytId = (() => {
+                  try {
+                    const u = new URL(clip.clipUrl);
+                    if (u.hostname === "youtu.be") return u.pathname.slice(1).split("/")[0] || null;
+                    if (u.hostname.endsWith("youtube.com")) {
+                      const m = u.pathname.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+                      if (m) return m[1];
+                      return u.searchParams.get("v");
+                    }
+                  } catch {}
+                  return null;
+                })();
+                const thumb = clip.thumbnailUrl || clip.video.thumbnailUrl || (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null);
+                return (
+                  <a
+                    key={clip.id}
+                    href={clip.clipUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-lg border border-amber-100 p-3 transition-colors hover:bg-amber-50/60 active:scale-[0.99]"
+                  >
+                    {thumb && <img src={thumb} alt="" className="h-10 w-16 rounded object-cover" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate text-gray-900">{clip.campaign.name}</p>
+                      <p className="text-xs text-gray-600">
+                        {PLATFORM_LABELS[clip.platform]} • @{clip.socialAccount.handle}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-900">{clip.views.toLocaleString()} {t.common.reach}</p>
+                      <Badge variant="outline" className="text-[10px]">
+                        {t.creator.contentStatus[clip.status as keyof typeof t.creator.contentStatus] || clip.status}
+                      </Badge>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           )}
         </CardContent>

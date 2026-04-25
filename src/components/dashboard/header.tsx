@@ -31,6 +31,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/dashboard/theme-toggle";
 
 const hexClip = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
 
@@ -133,6 +134,7 @@ export function Header() {
 
       {/* User menu */}
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         {/* Language switcher */}
         <Link
           href={switchLangPath}
