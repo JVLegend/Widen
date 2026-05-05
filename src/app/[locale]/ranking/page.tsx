@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
 import { useLocale } from "@/hooks/use-locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +25,10 @@ const medalColors = ["text-yellow-500", "text-gray-400", "text-amber-700"];
 
 export default function RankingPage() {
   const { locale, t } = useLocale();
+  const { user } = useAuth();
+  const backHref = user
+    ? `/${locale}/${user.role === "clipper" ? "creator" : "church"}`
+    : `/${locale}`;
   const [rankings, setRankings] = useState<RankingEntry[]>([]);
   const [period, setPeriod] = useState("all_time");
   const [loading, setLoading] = useState(true);
@@ -39,7 +44,7 @@ export default function RankingPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-8 flex items-center gap-3">
-        <Button render={<Link href={`/${locale}`} />} variant="ghost" size="icon">
+        <Button render={<Link href={backHref} />} variant="ghost" size="icon">
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>

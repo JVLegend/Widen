@@ -55,34 +55,35 @@ export default function LoginPage() {
       <div className="relative grid w-full max-w-5xl gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
         {/* Editorial left panel */}
         <div className="hidden lg:block rise">
-          <span className="eyebrow">Widen · Ministry × Creators</span>
+          <span className="eyebrow">{locale === "br" ? "Widen · Igrejas × Criadores" : "Widen · Ministry × Creators"}</span>
           <h1 className="font-display mt-4 text-[clamp(2.5rem,5vw,4rem)] font-medium leading-[0.95] tracking-tight text-gray-900">
-            Spread the <em className="text-[#F5A623]">Word</em>
-            <br />
-            through <em className="italic">viral</em>
-            <br />
-            short-form content.
+            {locale === "br" ? (
+              <>Espalhe a <em className="text-[#F5A623]">Palavra</em><br />com conteudo<br /><em className="italic">viral</em>.</>
+            ) : (
+              <>Spread the <em className="text-[#F5A623]">Word</em><br />through <em className="italic">viral</em><br />short-form content.</>
+            )}
           </h1>
           <p className="mt-6 max-w-sm text-base leading-relaxed text-gray-600">
-            A sweet marketplace where churches publish sermons and young creators turn
-            them into shorts that reach millions.
+            {locale === "br"
+              ? "Um marketplace onde igrejas publicam sermoes e jovens criadores os transformam em cortes que alcancam milhoes."
+              : "A sweet marketplace where churches publish sermons and young creators turn them into shorts that reach millions."}
           </p>
 
           {/* Mini honeycomb stat row */}
           <div className="mt-10 flex items-center gap-6">
             <div>
               <p className="numeric-display text-3xl text-[#F5A623]">+4M</p>
-              <p className="eyebrow mt-1">reach</p>
+              <p className="eyebrow mt-1">{locale === "br" ? "alcance" : "reach"}</p>
             </div>
             <div className="h-10 w-px bg-amber-200" />
             <div>
               <p className="numeric-display text-3xl text-gray-900">12</p>
-              <p className="eyebrow mt-1">creators</p>
+              <p className="eyebrow mt-1">{locale === "br" ? "criadores" : "creators"}</p>
             </div>
             <div className="h-10 w-px bg-amber-200" />
             <div>
               <p className="numeric-display text-3xl text-gray-900">8</p>
-              <p className="eyebrow mt-1">churches</p>
+              <p className="eyebrow mt-1">{locale === "br" ? "igrejas" : "churches"}</p>
             </div>
           </div>
         </div>
@@ -98,7 +99,7 @@ export default function LoginPage() {
                 <span className="text-lg">🐝</span>
               </div>
               <div>
-                <span className="eyebrow">Welcome back</span>
+                <span className="eyebrow">{locale === "br" ? "Bem-vindo de volta" : "Welcome back"}</span>
                 <h2 className="font-display text-2xl font-medium leading-tight text-gray-900">
                   {t.login.title}
                 </h2>
