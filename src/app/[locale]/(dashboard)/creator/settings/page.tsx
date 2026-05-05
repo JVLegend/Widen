@@ -11,7 +11,7 @@ import { HelpButton } from "@/components/dashboard/help-button";
 import { Save } from "lucide-react";
 
 export default function CreatorSettingsPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { t } = useLocale();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,6 +38,7 @@ export default function CreatorSettingsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, avatarUrl: avatarUrl || null }),
     });
+    updateUser({ name, avatarUrl: avatarUrl || undefined });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
