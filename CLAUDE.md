@@ -6,7 +6,8 @@ Widen is a ministry content platform connecting churches to young content creato
 ## Tech Stack
 - **Framework**: Next.js 16 (App Router, Turbopack)
 - **Styling**: Tailwind CSS v4 + shadcn/ui v4 (Base UI, NOT Radix)
-- **Database**: Prisma v6 + PostgreSQL (Supabase)
+- **Database**: Prisma v6 + PostgreSQL (Railway-hosted, no Supabase yet). Passwords are still hardcoded (`123456`) — mock auth.
+- **Hosting**: Railway (auto-deploys on push to `master`). Railway CLI is installed locally — use `railway run -- <cmd>` to run scripts against prod env (e.g. `railway run -- npx tsx prisma/cleanup.ts`).
 - **Auth**: Mock auth via localStorage (key: `widen_session`)
 - **Charts**: Recharts
 - **Icons**: Lucide React
