@@ -163,6 +163,8 @@ export default function LoginPage() {
               <div className="mt-3 grid gap-1.5 text-xs text-gray-600 font-mono">
                 <div className="flex justify-between"><span className="text-gray-500">{t.roles.church}</span><span>tela@widen.com · 123456</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">{t.roles.church}</span><span>contato@redetela.com.br · 123456</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t.roles.creator}</span><span>creator1@widen.com · 123456</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t.roles.creator}</span><span>creator2@widen.com · 123456</span></div>
               </div>
             </div>
           </div>
