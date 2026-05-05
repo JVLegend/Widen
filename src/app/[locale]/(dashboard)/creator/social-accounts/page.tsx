@@ -34,6 +34,27 @@ export default function SocialAccountsPage() {
   const [handle, setHandle] = useState("");
   const [profileUrl, setProfileUrl] = useState("");
   const [followers, setFollowers] = useState("");
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+
+  useEffect(() => {
+    if (!profileUrl || !platform) { setLookupStatus("idle"); return; }
+    if (!/^https?:\/\//.test(profileUrl)) { setLookupStatus("idle"); return; }
+    let cancelled = false;
+    setLookupStatus("loading");
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/social-accounts/lookup?url=${encodeURIComponent(profileUrl)}&platform=${platform}`);
+        const data = await res.json();
+        if (cancelled) return;
+        if (data?.data?.handle) setHandle(data.data.handle);
+        if (typeof data?.data?.followers === "number") setFollowers(String(data.data.followers));
+        setLookupStatus(data?.data?.handle ? "ok" : "error");
+      } catch {
+        if (!cancelled) setLookupStatus("error");
+      }
+    }, 500);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [profileUrl, platform]);
 
   const fetchAccounts = useCallback(async () => {
     if (!user) return;
@@ -126,6 +147,15 @@ export default function SocialAccountsPage() {
               br: "Conecte suas redes sociais para receber credito pelos cortes publicados.",
             }}
           />
+          {user && (
+            <Button
+              variant="outline"
+              className="gap-2 border-amber-200"
+              onClick={() => { window.location.href = `/api/auth/instagram/start?userId=${user.userId}`; }}
+            >
+              Connect Instagram
+            </Button>
+          )}
           <Button onClick={openNew} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
             <Plus className="h-4 w-4" />
             {t.creator.addAccount}
@@ -194,6 +224,9 @@ export default function SocialAccountsPage() {
             <div className="space-y-2">
               <Label className="text-gray-900">{t.creator.profileUrl}</Label>
               <Input value={profileUrl} onChange={(e) => setProfileUrl(e.target.value)} placeholder="https://tiktok.com/@myprofile" className="bg-white border-amber-100" />
+              {lookupStatus === "loading" && <p className="text-xs text-gray-500">Looking up profile…</p>}
+              {lookupStatus === "ok" && <p className="text-xs text-green-700">Auto-filled from URL{platform === "youtube" ? " (followers via YouTube API)" : ""}</p>}
+              {lookupStatus === "error" && <p className="text-xs text-amber-700">Could not auto-fill — please check URL or fill manually</p>}
             </div>
             <div className="space-y-2">
               <Label className="text-gray-900">{t.creator.followers}</Label>
