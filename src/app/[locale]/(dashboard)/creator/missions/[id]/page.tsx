@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
-import { ArrowLeft, Send, Calendar, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, Calendar, Sparkles, Play } from "lucide-react";
 
 export default function CreatorMissionDetailPage() {
   const params = useParams();
@@ -131,10 +131,21 @@ export default function CreatorMissionDetailPage() {
               {cv.video.thumbnailUrl && (
                 <img src={cv.video.thumbnailUrl} alt="" className="h-16 w-28 rounded object-cover" />
               )}
-              <div>
-                <p className="font-medium text-sm text-gray-900">{cv.video.title}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-gray-900 truncate">{cv.video.title}</p>
                 <p className="text-xs text-gray-600">{PLATFORM_LABELS[cv.video.platform]}</p>
               </div>
+              {cv.video.originalUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 border-amber-200"
+                  render={<a href={cv.video.originalUrl} target="_blank" rel="noopener noreferrer" />}
+                >
+                  <Play className="h-3.5 w-3.5" />
+                  {locale === "br" ? "Assistir" : "Watch"}
+                </Button>
+              )}
             </div>
           ))}
         </CardContent>
