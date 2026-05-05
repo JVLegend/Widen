@@ -46,7 +46,6 @@ function NewContentForm() {
   const [socialAccountId, setSocialAccountId] = useState("");
   const [clipUrl, setClipUrl] = useState("");
   const [platform, setPlatform] = useState("");
-  const [publishedAt, setPublishedAt] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -83,7 +82,6 @@ function NewContentForm() {
           socialAccountId,
           clipUrl,
           platform,
-          publishedAt: publishedAt || null,
         }),
       });
       if (!res.ok) {
@@ -202,17 +200,11 @@ function NewContentForm() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-gray-900">
-              {locale === "br" ? "Data de publicacao (opcional)" : "Publish date (optional)"}
-            </Label>
-            <Input
-              type="date"
-              value={publishedAt}
-              onChange={(e) => setPublishedAt(e.target.value)}
-              className="bg-white border-amber-100"
-            />
-          </div>
+          <p className="text-xs text-gray-500">
+            {locale === "br"
+              ? "A data de publicacao e detectada automaticamente para URLs do YouTube."
+              : "Publish date is detected automatically for YouTube URLs."}
+          </p>
         </CardContent>
       </Card>
 

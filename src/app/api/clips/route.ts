@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { clipperId, campaignId, videoId, socialAccountId, clipUrl, platform, publishedAt } = body;
+    const { clipperId, campaignId, videoId, socialAccountId, clipUrl, platform } = body;
 
     if (!clipperId || !campaignId || !videoId || !socialAccountId || !clipUrl || !platform) {
       return apiError("Campos obrigatórios: clipperId, campaignId, videoId, socialAccountId, clipUrl, platform");
@@ -61,15 +61,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Try to auto-fetch YouTube metrics right on creation
-    let ytMetrics: { views: number; likes: number; comments: number; earnings: number } | null = null;
-    if (campaign) {
-      ytMetrics = await syncClipFromYouTube(
-        clipUrl,
-        campaign.paymentModel,
-        campaign.cpvRate,
-        campaign.fixedRate,
-      );
-    }
+    const ytMetrics = campaign
+      ? await syncClipFromYouTube(clipUrl, campaign.paymentModel, campaign.cpvRate, campaign.fixedRate)
+      : null;
 
     const ytId = extractYouTubeVideoId(clipUrl);
     const thumbnailUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
@@ -83,7 +77,7 @@ export async function POST(request: NextRequest) {
         clipUrl,
         thumbnailUrl,
         platform,
-        publishedAt: publishedAt ? new Date(publishedAt) : null,
+        publishedAt: ytMetrics?.publishedAt ? new Date(ytMetrics.publishedAt) : null,
         ...(ytMetrics
           ? {
               views: ytMetrics.views,

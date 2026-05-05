@@ -7,6 +7,7 @@ export interface YouTubeStats {
   views: number;
   likes: number;
   comments: number;
+  publishedAt: string | null;
 }
 
 export interface YouTubeVideoMetadata {
@@ -62,7 +63,7 @@ export async function fetchYouTubeStats(videoId: string): Promise<YouTubeStats |
 
   const url =
     `https://www.googleapis.com/youtube/v3/videos` +
-    `?part=statistics&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`;
+    `?part=statistics,snippet&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`;
 
   try {
     const res = await fetch(url, { next: { revalidate: 0 } });
@@ -80,6 +81,7 @@ export async function fetchYouTubeStats(videoId: string): Promise<YouTubeStats |
       views: parseInt(stats.viewCount ?? "0", 10),
       likes: parseInt(stats.likeCount ?? "0", 10),
       comments: parseInt(stats.commentCount ?? "0", 10),
+      publishedAt: item.snippet?.publishedAt ?? null,
     };
   } catch (err) {
     console.error("[youtube] fetch failed:", err);
