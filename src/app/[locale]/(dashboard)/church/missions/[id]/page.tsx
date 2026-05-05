@@ -9,12 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PLATFORM_LABELS } from "@/lib/constants";
-import { Eye, Film, Sparkles, Pause, Play, ArrowLeft, Pencil } from "lucide-react";
+import { Eye, Film, Sparkles, Pause, Play, ArrowLeft, Pencil, OctagonX } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { HelpButton } from "@/components/dashboard/help-button";
 
 export default function MissionDetailPage() {
   const params = useParams();
@@ -26,6 +25,8 @@ export default function MissionDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", budget: "", instructions: "", startDate: "", endDate: "" });
   const [saving, setSaving] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [ending, setEnding] = useState(false);
 
   function openEdit() {
     if (!campaign) return;
@@ -71,14 +72,41 @@ export default function MissionDetailPage() {
   }, [params.id]);
 
   async function toggleStatus() {
-    if (!campaign) return;
+    if (!campaign || campaign.status === "completed") return;
     const newStatus = campaign.status === "active" ? "paused" : "active";
-    await fetch(`/api/campaigns/${campaign.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    setCampaign({ ...campaign, status: newStatus });
+    setStatusSaving(true);
+    try {
+      const res = await fetch(`/api/campaigns/${campaign.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) setCampaign({ ...campaign, status: newStatus });
+    } finally {
+      setStatusSaving(false);
+    }
+  }
+
+  async function endMission() {
+    if (!campaign || campaign.status === "completed") return;
+    const confirmed = window.confirm(
+      locale === "br"
+        ? "Encerrar esta missão agora? Ela deixará de aceitar novos conteúdos."
+        : "End this mission now? It will stop accepting new content.",
+    );
+    if (!confirmed) return;
+
+    setEnding(true);
+    try {
+      const res = await fetch(`/api/campaigns/${campaign.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "completed" }),
+      });
+      if (res.ok) setCampaign({ ...campaign, status: "completed" });
+    } finally {
+      setEnding(false);
+    }
   }
 
   if (loading) {
@@ -116,10 +144,28 @@ export default function MissionDetailPage() {
           <Pencil className="h-4 w-4" />
           {locale === "br" ? "Editar" : "Edit"}
         </Button>
-        <Button variant="outline" onClick={toggleStatus} className="gap-2 border-amber-100 text-gray-900">
-          {campaign.status === "active" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          {campaign.status === "active" ? t.church.togglePause : t.church.toggleActive}
-        </Button>
+        {campaign.status !== "completed" && (
+          <>
+            <Button
+              variant="outline"
+              onClick={toggleStatus}
+              disabled={statusSaving}
+              className="gap-2 border-amber-100 text-gray-900"
+            >
+              {campaign.status === "active" ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {campaign.status === "active" ? t.church.togglePause : t.church.toggleActive}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={endMission}
+              disabled={ending}
+              className="gap-2"
+            >
+              <OctagonX className="h-4 w-4" />
+              {ending ? t.church.endingMission : t.church.endMission}
+            </Button>
+          </>
+        )}
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>

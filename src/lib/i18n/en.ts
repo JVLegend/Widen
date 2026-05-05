@@ -331,9 +331,11 @@ export const en = {
     missionsTitle: "My Missions",
     newMission: "New Mission",
     activeMissions: "Active",
+    pausedMissions: "Paused",
     draftMissions: "Drafts",
     completedMissions: "Completed",
     noActiveMissions: "No active missions",
+    noPaused: "No paused missions",
     noDrafts: "No drafts",
     noCompleted: "No completed missions",
     missionName: "Mission name",
@@ -355,6 +357,8 @@ export const en = {
     contentReceived: "Content Received",
     toggleActive: "Activate",
     togglePause: "Pause",
+    endMission: "End Mission",
+    endingMission: "Ending...",
 
     // Analytics
     analyticsTitle: "Analytics",

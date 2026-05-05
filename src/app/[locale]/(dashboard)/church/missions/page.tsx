@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocale } from "@/hooks/use-locale";
@@ -32,14 +32,6 @@ export default function ChurchMissionsPage() {
   const [campaigns, setCampaigns] = useState<CampaignWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCampaigns = useCallback(async () => {
-    if (!user) return;
-    const res = await fetch(`/api/campaigns?influencerId=${user.userId}`);
-    const data = await res.json();
-    setCampaigns(data.data || []);
-    setLoading(false);
-  }, [user]);
-
   useEffect(() => {
     let cancelled = false;
     if (!user) return;
@@ -50,8 +42,9 @@ export default function ChurchMissionsPage() {
   }, [user]);
 
   const active = campaigns.filter((c) => c.status === "active");
+  const paused = campaigns.filter((c) => c.status === "paused");
   const drafts = campaigns.filter((c) => c.status === "draft");
-  const ended = campaigns.filter((c) => c.status === "completed" || c.status === "paused");
+  const ended = campaigns.filter((c) => c.status === "completed");
 
   function CampaignCard({ campaign: c }: { campaign: CampaignWithDetails }) {
     let platforms: string[] = [];
@@ -111,14 +104,16 @@ export default function ChurchMissionsPage() {
             content={{
               en: [
                 "Active: campaigns live and accepting clips.",
+                "Paused: campaigns temporarily stopped and hidden from creators.",
                 "Drafts: campaigns you saved but haven't published. Tap to open and edit.",
-                "Ended: paused or completed campaigns.",
+                "Ended: completed campaigns that no longer accept clips.",
                 "Tap 'New mission' to launch a campaign and pick sermons for creators to clip.",
               ],
               br: [
                 "Ativas: campanhas no ar aceitando cortes.",
+                "Pausadas: campanhas temporariamente interrompidas e ocultas para creators.",
                 "Rascunhos: campanhas salvas mas nao publicadas. Toque para abrir e editar.",
-                "Encerradas: campanhas pausadas ou concluidas.",
+                "Encerradas: campanhas concluidas que nao aceitam mais cortes.",
                 "Toque em 'Nova missao' para lancar uma campanha e escolher sermoes para os creators cortarem.",
               ],
             }}
@@ -133,6 +128,7 @@ export default function ChurchMissionsPage() {
       <Tabs defaultValue="active">
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="active" className="flex-1 py-2.5 text-sm sm:flex-initial sm:py-1.5">{t.church.activeMissions} ({active.length})</TabsTrigger>
+          <TabsTrigger value="paused" className="flex-1 py-2.5 text-sm sm:flex-initial sm:py-1.5">{t.church.pausedMissions} ({paused.length})</TabsTrigger>
           <TabsTrigger value="drafts" className="flex-1 py-2.5 text-sm sm:flex-initial sm:py-1.5">{t.church.draftMissions} ({drafts.length})</TabsTrigger>
           <TabsTrigger value="ended" className="flex-1 py-2.5 text-sm sm:flex-initial sm:py-1.5">{t.church.completedMissions} ({ended.length})</TabsTrigger>
         </TabsList>
@@ -141,6 +137,12 @@ export default function ChurchMissionsPage() {
           {active.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-600">{t.church.noActiveMissions}</p>
           ) : active.map((c) => <CampaignCard key={c.id} campaign={c} />)}
+        </TabsContent>
+
+        <TabsContent value="paused" className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+          {paused.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-600">{t.church.noPaused}</p>
+          ) : paused.map((c) => <CampaignCard key={c.id} campaign={c} />)}
         </TabsContent>
 
         <TabsContent value="drafts" className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
