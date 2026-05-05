@@ -9,6 +9,7 @@ import { LineChart } from "@/components/dashboard/charts/line-chart";
 import { BarChart } from "@/components/dashboard/charts/bar-chart";
 import { DonutChart } from "@/components/dashboard/charts/donut-chart";
 import { PLATFORM_LABELS } from "@/lib/constants";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { Eye, Film, Sparkles, TrendingUp } from "lucide-react";
 
 type Analytics = {
@@ -49,9 +50,18 @@ export default function CreatorAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.creator.analyticsTitle}</h1>
-        <p className="text-sm text-gray-600">{t.creator.manageProfile}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t.creator.analyticsTitle}</h1>
+          <p className="text-sm text-gray-600">{t.creator.manageProfile}</p>
+        </div>
+        <HelpButton
+          title={{ en: "Your analytics", br: "Seus analytics" }}
+          content={{
+            en: "Metrics for your clips: views, engagement, and impact across missions and platforms.",
+            br: "Metricas dos seus cortes: views, engajamento e impacto em missoes e plataformas.",
+          }}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { VideoForm } from "@/components/influencer/video-form";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Plus, Pencil, Trash2, ExternalLink, Film } from "lucide-react";
 import type { Video } from "@prisma/client";
@@ -96,10 +97,19 @@ export default function ChurchSermonsPage() {
           <h1 className="text-2xl font-bold text-gray-900">{t.church.sermonsTitle}</h1>
           <p className="text-sm text-gray-600">{t.church.sermonsSubtitle}</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)} className="h-12 w-full gap-2 text-base bg-[#F5A623] hover:bg-[#E09000] text-white sm:h-9 sm:w-auto sm:text-sm">
-          <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
-          {t.church.addSermon}
-        </Button>
+        <div className="flex items-center gap-2">
+          <HelpButton
+            title={{ en: "Sermons", br: "Sermoes" }}
+            content={{
+              en: "Your sermons available for creators to turn into short-form content. Add sermon URLs from YouTube or other platforms.",
+              br: "Suas pregacoes disponiveis para os creators transformarem em conteudo curto. Adicione URLs de sermoes do YouTube ou outras plataformas.",
+            }}
+          />
+          <Button onClick={() => setDialogOpen(true)} className="h-12 w-full gap-2 text-base bg-[#F5A623] hover:bg-[#E09000] text-white sm:h-9 sm:w-auto sm:text-sm">
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
+            {t.church.addSermon}
+          </Button>
+        </div>
       </div>
 
       {videos.length === 0 ? (

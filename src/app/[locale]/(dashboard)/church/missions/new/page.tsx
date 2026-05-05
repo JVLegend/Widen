@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PLATFORMS, PLATFORM_LABELS } from "@/lib/constants";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Video } from "@prisma/client";
 
@@ -87,11 +88,20 @@ export default function NewMissionPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.church.newMission}</h1>
-        <p className="text-sm text-gray-600">
-          {locale === "br" ? `Passo ${step} de 3` : `Step ${step} of 3`}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t.church.newMission}</h1>
+          <p className="text-sm text-gray-600">
+            {locale === "br" ? `Passo ${step} de 3` : `Step ${step} of 3`}
+          </p>
+        </div>
+        <HelpButton
+          title={{ en: "Create new mission", br: "Criar nova missao" }}
+          content={{
+            en: "Create a new mission in 3 steps: pick the sermons, set budget and rules, then review and publish.",
+            br: "Crie uma nova missao em 3 passos: selecione os sermoes, defina orcamento e regras, depois revise e publique.",
+          }}
+        />
       </div>
 
       {/* Progress */}

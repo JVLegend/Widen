@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { Save } from "lucide-react";
 
 export default function CreatorSettingsPage() {
@@ -44,9 +45,18 @@ export default function CreatorSettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.creator.settingsTitle}</h1>
-        <p className="text-sm text-gray-600">{t.creator.manageProfile}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t.creator.settingsTitle}</h1>
+          <p className="text-sm text-gray-600">{t.creator.manageProfile}</p>
+        </div>
+        <HelpButton
+          title={{ en: "Creator settings", br: "Configuracoes do creator" }}
+          content={{
+            en: "Your preferences and creator profile data.",
+            br: "Suas preferencias e dados de creator.",
+          }}
+        />
       </div>
 
       <Card className="bg-white border border-amber-100 rounded-xl">

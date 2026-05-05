@@ -6,6 +6,7 @@ import { useLocale } from "@/hooks/use-locale";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Sparkles, Calendar, Film } from "lucide-react";
 
@@ -36,9 +37,18 @@ export default function CreatorMissionsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.creator.missionsTitle}</h1>
-        <p className="text-sm text-gray-600">{t.creator.missionsSubtitle}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t.creator.missionsTitle}</h1>
+          <p className="text-sm text-gray-600">{t.creator.missionsSubtitle}</p>
+        </div>
+        <HelpButton
+          title={{ en: "Open missions", br: "Missoes abertas" }}
+          content={{
+            en: "Missions you can join to create and submit short-form content from church sermons.",
+            br: "Missoes abertas para voce participar e gerar conteudo curto a partir de sermoes.",
+          }}
+        />
       </div>
 
       {campaigns.length === 0 ? (

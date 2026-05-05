@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { Save } from "lucide-react";
 
 export default function ChurchSettingsPage() {
@@ -44,9 +45,18 @@ export default function ChurchSettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.church.settingsTitle}</h1>
-        <p className="text-sm text-gray-600">{t.church.manageProfile}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t.church.settingsTitle}</h1>
+          <p className="text-sm text-gray-600">{t.church.manageProfile}</p>
+        </div>
+        <HelpButton
+          title={{ en: "Church settings", br: "Configuracoes da igreja" }}
+          content={{
+            en: "Configure your church profile, name, avatar, and integrations.",
+            br: "Configure os dados da sua igreja, perfil, avatar e integracoes.",
+          }}
+        />
       </div>
 
       <Card className="bg-white border border-amber-100 rounded-xl">

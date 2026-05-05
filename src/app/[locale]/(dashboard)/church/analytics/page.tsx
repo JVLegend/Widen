@@ -9,6 +9,7 @@ import { LineChart } from "@/components/dashboard/charts/line-chart";
 import { BarChart } from "@/components/dashboard/charts/bar-chart";
 import { DonutChart } from "@/components/dashboard/charts/donut-chart";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Eye, Film, Megaphone, TrendingUp } from "lucide-react";
 
@@ -56,9 +57,18 @@ export default function ChurchAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t.church.analyticsTitle}</h1>
-        <p className="text-sm text-gray-600">{t.church.manageProfile}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{t.church.analyticsTitle}</h1>
+          <p className="text-sm text-gray-600">{t.church.manageProfile}</p>
+        </div>
+        <HelpButton
+          title={{ en: "Analytics", br: "Analytics" }}
+          content={{
+            en: "Reach, views, and impact metrics from your missions across creators and platforms.",
+            br: "Metricas de alcance, views e impacto das missoes entre creators e plataformas.",
+          }}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

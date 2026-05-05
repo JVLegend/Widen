@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PLATFORM_LABELS } from "@/lib/constants";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { ArrowLeft, Send } from "lucide-react";
 
 type Campaign = {
@@ -105,7 +106,14 @@ function NewContentForm() {
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-2xl font-bold text-gray-900">{t.creator.newContentTitle}</h1>
+        <h1 className="flex-1 text-2xl font-bold text-gray-900">{t.creator.newContentTitle}</h1>
+        <HelpButton
+          title={{ en: "Submit new clip", br: "Submeter novo corte" }}
+          content={{
+            en: "Submit a new clip you published. Paste the public URL of your post so it can be tracked.",
+            br: "Submeta um novo corte. Cole a URL publica da publicacao para que possa ser rastreada.",
+          }}
+        />
       </div>
 
       <Card className="bg-white border border-amber-100 rounded-xl">

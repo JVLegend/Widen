@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocale } from "@/hooks/use-locale";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { Video, Megaphone, Eye, Film, Plus } from "lucide-react";
 
 interface Stats {
@@ -55,10 +56,21 @@ export default function ChurchHomePage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2 border-b border-amber-100/80 pb-6">
-        <span className="eyebrow">Dashboard · Ministry</span>
-        <h1 className="font-display text-[clamp(1.85rem,3.5vw,2.75rem)] font-medium leading-[1.05] tracking-tight text-gray-900">
-          {t.church.welcome.replace("{name}", user?.name || "")}
-        </h1>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-2">
+            <span className="eyebrow">Dashboard · Ministry</span>
+            <h1 className="font-display text-[clamp(1.85rem,3.5vw,2.75rem)] font-medium leading-[1.05] tracking-tight text-gray-900">
+              {t.church.welcome.replace("{name}", user?.name || "")}
+            </h1>
+          </div>
+          <HelpButton
+            title={{ en: "Church dashboard", br: "Painel da igreja" }}
+            content={{
+              en: "Overview of your church: active missions, sermons, and the impact of creators turning your messages into short-form content.",
+              br: "Visao geral da sua igreja: missoes ativas, sermoes e o impacto dos creators transformando suas mensagens em conteudo curto.",
+            }}
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

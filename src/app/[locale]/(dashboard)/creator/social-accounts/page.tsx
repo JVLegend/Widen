@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PLATFORMS, PLATFORM_LABELS } from "@/lib/constants";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
 
 type SocialAccount = {
@@ -117,10 +118,19 @@ export default function SocialAccountsPage() {
           <h1 className="text-2xl font-bold text-gray-900">{t.creator.socialTitle}</h1>
           <p className="text-sm text-gray-600">{t.creator.socialSubtitle}</p>
         </div>
-        <Button onClick={openNew} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
-          <Plus className="h-4 w-4" />
-          {t.creator.addAccount}
-        </Button>
+        <div className="flex items-center gap-2">
+          <HelpButton
+            title={{ en: "Social accounts", br: "Redes sociais" }}
+            content={{
+              en: "Connect your social media accounts so you can be credited for the clips you publish.",
+              br: "Conecte suas redes sociais para receber credito pelos cortes publicados.",
+            }}
+          />
+          <Button onClick={openNew} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
+            <Plus className="h-4 w-4" />
+            {t.creator.addAccount}
+          </Button>
+        </div>
       </div>
 
       {accounts.length === 0 ? (

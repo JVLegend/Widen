@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { ArrowLeft, Send, Calendar, Sparkles } from "lucide-react";
 
@@ -56,6 +57,13 @@ export default function CreatorMissionDetailPage() {
             <span className="text-sm text-gray-600">{t.creator.missionBy} {campaign.influencer.name}</span>
           </div>
         </div>
+        <HelpButton
+          title={{ en: "Mission detail", br: "Detalhes da missao" }}
+          content={{
+            en: "Mission details, available sermons and rules. Submit your clips here.",
+            br: "Detalhes da missao, sermoes disponiveis e regras. Submeta seus cortes aqui.",
+          }}
+        />
         <Button render={<Link href={`/${locale}/creator/content/new?missionId=${campaign.id}`} />} className="gap-2 bg-[#F5A623] hover:bg-[#E09000] text-white">
           <Send className="h-4 w-4" />
           {t.creator.submitContentBtn}
