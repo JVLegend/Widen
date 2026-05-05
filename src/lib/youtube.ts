@@ -9,6 +9,13 @@ export interface YouTubeStats {
   comments: number;
 }
 
+export interface YouTubeVideoMetadata {
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  tags: string[];
+}
+
 /**
  * Extracts a YouTube video ID from any of these URL formats:
  *   https://www.youtube.com/watch?v=VIDEO_ID
@@ -76,6 +83,46 @@ export async function fetchYouTubeStats(videoId: string): Promise<YouTubeStats |
     };
   } catch (err) {
     console.error("[youtube] fetch failed:", err);
+    return null;
+  }
+}
+
+export async function fetchYouTubeVideoMetadata(videoId: string): Promise<YouTubeVideoMetadata | null> {
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey) return null;
+
+  const url =
+    `https://www.googleapis.com/youtube/v3/videos` +
+    `?part=snippet&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`;
+
+  try {
+    const res = await fetch(url, { next: { revalidate: 0 } });
+    if (!res.ok) {
+      console.error(`[youtube] metadata API error ${res.status}:`, await res.text());
+      return null;
+    }
+
+    const json = await res.json();
+    const snippet = json?.items?.[0]?.snippet;
+    if (!snippet?.title) return null;
+
+    const thumbnails = snippet.thumbnails || {};
+    const thumbnailUrl =
+      thumbnails.maxres?.url ||
+      thumbnails.standard?.url ||
+      thumbnails.high?.url ||
+      thumbnails.medium?.url ||
+      thumbnails.default?.url ||
+      `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+    return {
+      title: snippet.title,
+      description: snippet.description || "",
+      thumbnailUrl,
+      tags: Array.isArray(snippet.tags) ? snippet.tags : [],
+    };
+  } catch (err) {
+    console.error("[youtube] metadata fetch failed:", err);
     return null;
   }
 }
