@@ -162,9 +162,7 @@ export default function LoginPage() {
               <p className="eyebrow text-[#8A5A00]">{t.login.testAccounts}</p>
               <div className="mt-3 grid gap-1.5 text-xs text-gray-600 font-mono">
                 <div className="flex justify-between"><span className="text-gray-500">{t.roles.church}</span><span>tela@widen.com · 123456</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">{t.roles.church}</span><span>cariani@widen.com · 123456</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">{t.roles.creator}</span><span>maria.tela@widen.com · 123456</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">{t.roles.creator}</span><span>joao.tela@widen.com · 123456</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">{t.roles.church}</span><span>contato@redetela.com.br · 123456</span></div>
               </div>
             </div>
           </div>
