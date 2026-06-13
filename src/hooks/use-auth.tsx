@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useState,
   useCallback,
   type ReactNode,
@@ -41,14 +42,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading] = useState(false);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await fetch(`/api/users?email=${encodeURIComponent(email)}`);
-    if (!res.ok) throw new Error("Error fetching user");
-
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
     const data = await res.json();
-    const found = data.data?.[0];
-    if (!found) throw new Error("User not found");
-    if (found.password !== password) throw new Error("Wrong password");
+    if (!res.ok) throw new Error(data.error || "Wrong password");
 
+    const found = data.data;
     const session: AuthSession = {
       userId: found.id,
       email: found.email,
@@ -96,6 +98,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
+
+  useEffect(() => {
+    if (!user?.userId) return;
+    let cancelled = false;
+
+    fetch(`/api/users/${user.userId}`, { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        const fresh = json?.data;
+        if (!fresh || cancelled) return;
+
+        setUser((current) => {
+          if (!current || current.userId !== fresh.id) return current;
+
+          const next: AuthSession = {
+            ...current,
+            email: fresh.email,
+            name: fresh.name,
+            role: fresh.role,
+            avatarUrl: fresh.avatarUrl,
+          };
+          setSession(next);
+          return next;
+        });
+      })
+      .catch(() => {
+        // Keep the local mock session when the profile refresh fails.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.userId]);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, signup, logout, updateUser }}>

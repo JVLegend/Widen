@@ -49,7 +49,7 @@ export default function ChurchSermonsPage() {
   async function handleCreate(formData: { title: string; description: string; originalUrl: string; platform: string; thumbnailUrl: string; tags: string }) {
     const res = await fetch("/api/videos", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-user-id": user!.userId },
       body: JSON.stringify({
         influencerId: user!.userId,
         ...formData,
@@ -65,7 +65,7 @@ export default function ChurchSermonsPage() {
     if (!editingVideo) return;
     const res = await fetch(`/api/videos/${editingVideo.id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-user-id": user!.userId },
       body: JSON.stringify({
         ...formData,
         tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
@@ -78,7 +78,10 @@ export default function ChurchSermonsPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to delete this sermon?")) return;
-    await fetch(`/api/videos/${id}`, { method: "DELETE" });
+    await fetch(`/api/videos/${id}`, {
+      method: "DELETE",
+      headers: { "x-user-id": user!.userId },
+    });
     fetchVideos();
   }
 
@@ -132,6 +135,7 @@ export default function ChurchSermonsPage() {
             <Card key={video.id} className="overflow-hidden bg-white border border-amber-100 rounded-xl">
               {video.thumbnailUrl && (
                 <div className="aspect-video bg-gray-50">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- External sermon thumbnails come from user-provided platform URLs. */}
                   <img
                     src={video.thumbnailUrl}
                     alt={video.title}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/use-auth";
 import { useLocale } from "@/hooks/use-locale";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -83,7 +82,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function InternalFAQPage() {
-  const { user } = useAuth();
   const { t } = useLocale();
 
   return (

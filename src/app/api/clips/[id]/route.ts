@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, apiError, apiServerError } from "@/lib/api";
+import { apiSuccess, apiError, apiServerError, requireCurrentUser } from "@/lib/api";
 
 export async function GET(
   _request: NextRequest,
@@ -31,6 +31,16 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const currentUserId = requireCurrentUser(request);
+    if (currentUserId instanceof Response) return currentUserId;
+
+    const existing = await prisma.clip.findUnique({
+      where: { id },
+      select: { clipperId: true },
+    });
+    if (!existing) return apiError("Corte não encontrado", 404);
+    if (existing.clipperId !== currentUserId) return apiError("Acesso negado", 403);
+
     const body = await request.json();
 
     const allowed = ["status", "views", "likes", "comments", "shares", "earnings", "clipUrl", "publishedAt"];
@@ -57,11 +67,21 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
+    const currentUserId = requireCurrentUser(request);
+    if (currentUserId instanceof Response) return currentUserId;
+
+    const existing = await prisma.clip.findUnique({
+      where: { id },
+      select: { clipperId: true },
+    });
+    if (!existing) return apiError("Corte não encontrado", 404);
+    if (existing.clipperId !== currentUserId) return apiError("Acesso negado", 403);
+
     await prisma.clip.delete({ where: { id } });
     return apiSuccess({ deleted: true });
   } catch (err) {

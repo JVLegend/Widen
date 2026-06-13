@@ -1,6 +1,18 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, apiError, apiServerError } from "@/lib/api";
+import { apiSuccess, apiError, apiServerError, requireCurrentUser } from "@/lib/api";
+
+const userSelect = {
+  id: true,
+  email: true,
+  name: true,
+  role: true,
+  avatarUrl: true,
+  bio: true,
+  createdAt: true,
+  updatedAt: true,
+  socialAccounts: true,
+};
 
 export async function GET(
   _request: NextRequest,
@@ -10,7 +22,7 @@ export async function GET(
     const { id } = await params;
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { socialAccounts: true },
+      select: userSelect,
     });
 
     if (!user) return apiError("Usuário não encontrado", 404);
@@ -26,6 +38,10 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const currentUserId = requireCurrentUser(request);
+    if (currentUserId instanceof Response) return currentUserId;
+    if (currentUserId !== id) return apiError("Acesso negado", 403);
+
     const body = await request.json();
     const { name, avatarUrl, bio } = body;
 
@@ -36,6 +52,7 @@ export async function PATCH(
         ...(avatarUrl !== undefined && { avatarUrl }),
         ...(bio !== undefined && { bio }),
       },
+      select: userSelect,
     });
 
     return apiSuccess(user);

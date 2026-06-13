@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse } from "@/lib/api";
+import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse, requireCurrentUser } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const currentUserId = requireCurrentUser(request);
+    if (currentUserId instanceof Response) return currentUserId;
+
     const body = await request.json();
     const {
       influencerId, name, budget, paymentModel, cpvRate, fixedRate,
@@ -47,6 +50,7 @@ export async function POST(request: NextRequest) {
     if (!influencerId || !name || budget === undefined || !paymentModel || !startDate || !endDate) {
       return apiError("Campos obrigatórios faltando");
     }
+    if (currentUserId !== influencerId) return apiError("Acesso negado", 403);
 
     const campaign = await prisma.campaign.create({
       data: {

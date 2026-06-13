@@ -74,7 +74,7 @@ function NewContentForm() {
     try {
       const res = await fetch("/api/clips", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user.userId },
         body: JSON.stringify({
           clipperId: user.userId,
           campaignId,
@@ -146,6 +146,7 @@ function NewContentForm() {
                     }`}
                   >
                     {v.thumbnailUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element -- External sermon thumbnails come from user-provided platform URLs.
                       <img src={v.thumbnailUrl} alt="" className="h-12 w-20 rounded object-cover" />
                     )}
                     <div>

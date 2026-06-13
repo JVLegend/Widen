@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, apiError, apiServerError } from "@/lib/api";
+import { apiSuccess, apiError, apiServerError, requireCurrentUser } from "@/lib/api";
 import { syncClipFromYouTube } from "@/lib/youtube";
 
 /**
@@ -9,11 +9,13 @@ import { syncClipFromYouTube } from "@/lib/youtube";
  * Works only for YouTube URLs (youtube.com/shorts, youtu.be, watch?v=).
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
+    const currentUserId = requireCurrentUser(request);
+    if (currentUserId instanceof Response) return currentUserId;
 
     const clip = await prisma.clip.findUnique({
       where: { id },
@@ -25,6 +27,7 @@ export async function POST(
     });
 
     if (!clip) return apiError("Content not found", 404);
+    if (clip.clipperId !== currentUserId) return apiError("Acesso negado", 403);
 
     const result = await syncClipFromYouTube(
       clip.clipUrl,

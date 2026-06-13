@@ -55,6 +55,7 @@ export function Testimonials() {
                 &ldquo;{item.quote}&rdquo;
               </p>
               <div className="mt-6 flex items-center gap-3 border-t border-amber-200 pt-4">
+                {/* eslint-disable-next-line @next/next/no-img-element -- Dicebear avatars are generated external images. */}
                 <img
                   src={avatars[i]}
                   alt={item.name}

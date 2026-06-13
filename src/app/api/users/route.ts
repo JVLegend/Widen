@@ -1,20 +1,31 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse } from "@/lib/api";
+import { hashPassword } from "@/lib/password";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
+    const publicSelect = {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      avatarUrl: true,
+      bio: true,
+      createdAt: true,
+      updatedAt: true,
+    };
 
     if (email) {
-      const users = await prisma.user.findMany({ where: { email } });
+      const users = await prisma.user.findMany({ where: { email }, select: publicSelect });
       return apiSuccess(users);
     }
 
     const { page, limit, skip } = parsePagination(searchParams);
     const [users, total] = await Promise.all([
-      prisma.user.findMany({ skip, take: limit, orderBy: { createdAt: "desc" } }),
+      prisma.user.findMany({ skip, take: limit, orderBy: { createdAt: "desc" }, select: publicSelect }),
       prisma.user.count(),
     ]);
 
@@ -41,7 +52,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         email,
-        password,
+        password: hashPassword(password),
         name,
         role,
         avatarUrl: avatarUrl || null,
@@ -63,7 +74,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return apiSuccess(user, 201);
+    const safeUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+      bio: user.bio,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    return apiSuccess(safeUser, 201);
   } catch (err) {
     return apiServerError(err);
   }

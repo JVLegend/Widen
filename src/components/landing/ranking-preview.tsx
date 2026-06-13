@@ -70,6 +70,7 @@ export function RankingPreview() {
                 >
                   {creator.rank}
                 </span>
+                {/* eslint-disable-next-line @next/next/no-img-element -- Dicebear avatars are generated external images. */}
                 <img
                   src={creator.avatar}
                   alt={creator.name}

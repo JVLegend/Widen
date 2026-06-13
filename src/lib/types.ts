@@ -26,6 +26,18 @@ export interface CampaignWithDetails extends Campaign {
   _count?: { clips: number };
 }
 
+export interface CampaignListItem extends Campaign {
+  influencer: Pick<User, "id" | "email" | "name" | "avatarUrl">;
+  campaignVideos: (CampaignVideo & { video: Video })[];
+  _count: { clips: number };
+}
+
+export interface CampaignDetail extends Campaign {
+  influencer: Pick<User, "id" | "name" | "avatarUrl">;
+  campaignVideos: (CampaignVideo & { video: Video })[];
+  clips: ClipWithDetails[];
+}
+
 // Clip with relations
 export interface ClipWithDetails extends Clip {
   clipper: Pick<User, "id" | "name" | "avatarUrl">;

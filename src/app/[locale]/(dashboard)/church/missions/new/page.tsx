@@ -61,7 +61,7 @@ export default function NewMissionPage() {
     try {
       const res = await fetch("/api/campaigns", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user!.userId },
         body: JSON.stringify({
           influencerId: user!.userId,
           name,
@@ -144,6 +144,7 @@ export default function NewMissionPage() {
                     {selectedVideoIds.includes(v.id) && <Check className="h-3 w-3" />}
                   </div>
                   {v.thumbnailUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element -- External sermon thumbnails come from user-provided platform URLs.
                     <img src={v.thumbnailUrl} alt="" className="h-12 w-20 rounded object-cover" />
                   )}
                   <div className="flex-1">

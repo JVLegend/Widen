@@ -11,13 +11,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { ArrowLeft, Send, Calendar, Sparkles, Play } from "lucide-react";
+import type { CampaignDetail } from "@/lib/types";
 
 export default function CreatorMissionDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { locale, t } = useLocale();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [campaign, setCampaign] = useState<any>(null);
+  const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -125,10 +125,10 @@ export default function CreatorMissionDetailPage() {
       <Card className="bg-white border border-amber-100 rounded-xl">
         <CardHeader><CardTitle className="text-base text-gray-900">{t.creator.availableSermons}</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {campaign.campaignVideos?.map((cv: any) => (
+          {campaign.campaignVideos?.map((cv) => (
             <div key={cv.video.id} className="flex items-center gap-3 rounded-lg border border-amber-100 p-3">
               {cv.video.thumbnailUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- External sermon thumbnails come from user-provided platform URLs.
                 <img src={cv.video.thumbnailUrl} alt="" className="h-16 w-28 rounded object-cover" />
               )}
               <div className="flex-1 min-w-0">

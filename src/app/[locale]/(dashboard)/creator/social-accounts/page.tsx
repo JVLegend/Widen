@@ -37,12 +37,12 @@ export default function SocialAccountsPage() {
   const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   useEffect(() => {
-    if (!profileUrl || !platform) { setLookupStatus("idle"); return; }
-    if (!/^https?:\/\//.test(profileUrl)) { setLookupStatus("idle"); return; }
+    if (!profileUrl || !platform) return;
+    if (!/^https?:\/\//.test(profileUrl)) return;
     let cancelled = false;
-    setLookupStatus("loading");
     const t = setTimeout(async () => {
       try {
+        setLookupStatus("loading");
         const res = await fetch(`/api/social-accounts/lookup?url=${encodeURIComponent(profileUrl)}&platform=${platform}`);
         const data = await res.json();
         if (cancelled) return;
@@ -79,6 +79,7 @@ export default function SocialAccountsPage() {
     setHandle("");
     setProfileUrl("");
     setFollowers("");
+    setLookupStatus("idle");
     setDialogOpen(true);
   }
 
@@ -88,7 +89,18 @@ export default function SocialAccountsPage() {
     setHandle(acc.handle);
     setProfileUrl(acc.profileUrl);
     setFollowers(acc.followers?.toString() || "");
+    setLookupStatus("idle");
     setDialogOpen(true);
+  }
+
+  function handlePlatformChange(value: string) {
+    setPlatform(value);
+    setLookupStatus("idle");
+  }
+
+  function handleProfileUrlChange(value: string) {
+    setProfileUrl(value);
+    setLookupStatus("idle");
   }
 
   async function handleSave() {
@@ -104,13 +116,13 @@ export default function SocialAccountsPage() {
     if (editing) {
       await fetch(`/api/social-accounts/${editing.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user.userId },
         body: JSON.stringify(payload),
       });
     } else {
       await fetch("/api/social-accounts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user.userId },
         body: JSON.stringify(payload),
       });
     }
@@ -120,7 +132,11 @@ export default function SocialAccountsPage() {
   }
 
   async function handleDelete(id: string) {
-    await fetch(`/api/social-accounts/${id}`, { method: "DELETE" });
+    if (!user) return;
+    await fetch(`/api/social-accounts/${id}`, {
+      method: "DELETE",
+      headers: { "x-user-id": user.userId },
+    });
     fetchAccounts();
   }
 
@@ -210,7 +226,7 @@ export default function SocialAccountsPage() {
               <select
                 className="flex h-10 w-full rounded-md border border-amber-100 bg-white px-3 py-2 text-sm text-gray-900"
                 value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
+                onChange={(e) => handlePlatformChange(e.target.value)}
               >
                 {PLATFORMS.map((p) => (
                   <option key={p} value={p}>{PLATFORM_LABELS[p]}</option>
@@ -223,7 +239,7 @@ export default function SocialAccountsPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-gray-900">{t.creator.profileUrl}</Label>
-              <Input value={profileUrl} onChange={(e) => setProfileUrl(e.target.value)} placeholder="https://tiktok.com/@myprofile" className="bg-white border-amber-100" />
+              <Input value={profileUrl} onChange={(e) => handleProfileUrlChange(e.target.value)} placeholder="https://tiktok.com/@myprofile" className="bg-white border-amber-100" />
               {lookupStatus === "loading" && <p className="text-xs text-gray-500">Looking up profile…</p>}
               {lookupStatus === "ok" && <p className="text-xs text-green-700">Auto-filled from URL{platform === "youtube" ? " (followers via YouTube API)" : ""}</p>}
               {lookupStatus === "error" && <p className="text-xs text-amber-700">Could not auto-fill — please check URL or fill manually</p>}

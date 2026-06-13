@@ -25,18 +25,20 @@ export default function ChurchHomePage() {
     if (!user) return;
 
     async function loadStats() {
-      const [videosRes, campaignsRes] = await Promise.all([
+      const [videosRes, campaignsRes, analyticsRes] = await Promise.all([
         fetch(`/api/videos?influencerId=${user!.userId}`),
         fetch(`/api/campaigns?influencerId=${user!.userId}`),
+        fetch(`/api/analytics/influencer?influencerId=${user!.userId}`),
       ]);
 
       const videosData = await videosRes.json();
       const campaignsData = await campaignsRes.json();
+      const analyticsData = await analyticsRes.json();
 
       const videos = videosData.data || [];
       const campaigns = campaignsData.data || [];
 
-      const totalViews = 0;
+      const totalViews = analyticsData.data?.totalViews || 0;
       let totalClips = 0;
       for (const c of campaigns) {
         totalClips += c._count?.clips || 0;

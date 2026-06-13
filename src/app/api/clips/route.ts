@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse } from "@/lib/api";
+import { apiSuccess, apiError, apiServerError, parsePagination, paginatedResponse, requireCurrentUser } from "@/lib/api";
 import { syncClipFromYouTube, extractYouTubeVideoId } from "@/lib/youtube";
 
 export async function GET(request: NextRequest) {
@@ -40,12 +40,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const currentUserId = requireCurrentUser(request);
+    if (currentUserId instanceof Response) return currentUserId;
+
     const body = await request.json();
     const { clipperId, campaignId, videoId, socialAccountId, clipUrl, platform } = body;
 
     if (!clipperId || !campaignId || !videoId || !socialAccountId || !clipUrl || !platform) {
       return apiError("Campos obrigatórios: clipperId, campaignId, videoId, socialAccountId, clipUrl, platform");
     }
+    if (currentUserId !== clipperId) return apiError("Acesso negado", 403);
 
     const account = await prisma.socialAccount.findFirst({
       where: { id: socialAccountId, userId: clipperId },

@@ -107,16 +107,16 @@ async function main() {
 
   // ─── Sermons (Videos) ────────────────────────────────────────────────────
   const [
-    v1, v2, v3,          // Faith Chapel
+    v1, v2, _v3,         // Faith Chapel
     v4, v5, v6,          // Living Water
     v7, v8,              // Harvest
     v9, v10,             // New Life
-    v11, v12,            // The Refuge
+    v11, _v12,           // The Refuge
     // Grace Community (tela) — 6 sermons
     vg1, vg2, vg3, vg4, vg5, vg6,
     // Rede Tela — 7 real videos (vrt1 and vrt7 belong to Grace/tela, vrt2-vrt6 to redeTela)
-    vrt1, vrt2, vrt3, vrt4, vrt5, vrt6, vrt7,
-  ] = await Promise.all([
+    vrt1, vrt2, vrt3, _vrt4, _vrt5, _vrt6, vrt7,
+	  ] = await Promise.all([
     prisma.video.create({ data: { influencerId: church1.id, title: "The Power of Faith in Uncertain Times", description: "Sunday sermon on trusting God through life's storms.", originalUrl: "https://youtube.com/watch?v=faith-power", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/s1/640/360", tags: JSON.stringify(["faith", "trust", "sermon"]), status: "in_campaign" } }),
     prisma.video.create({ data: { influencerId: church1.id, title: "Finding Peace: A Study in Philippians", description: "Deep dive into Paul's letter to the Philippians about finding peace.", originalUrl: "https://youtube.com/watch?v=philippians-peace", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/s2/640/360", tags: JSON.stringify(["peace", "philippians", "bible study"]), status: "in_campaign" } }),
     prisma.video.create({ data: { influencerId: church1.id, title: "Worship Night Live — March 2026", description: "Full worship night recording with praise and testimony.", originalUrl: "https://youtube.com/watch?v=worship-march", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/s3/640/360", tags: JSON.stringify(["worship", "praise", "live"]), status: "available" } }),
@@ -142,10 +142,15 @@ async function main() {
     prisma.video.create({ data: { influencerId: redeTela.id, title: "Afrikan Aid: Redemptive Business Transforming Nations | With Marco Yamin",           description: "How a Christian business is impacting African nations and what we can learn from the experience.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt3/640/360", tags: JSON.stringify(["missions", "business", "social impact"]), status: "in_campaign" } }),
     prisma.video.create({ data: { influencerId: redeTela.id, title: "Healthy Body, Healthy Business, and the Peptides of Longevity | With Adriano Faustino", description: "The connection between health, longevity and business performance — what science and faith say.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt4/640/360", tags: JSON.stringify(["health", "business", "longevity"]), status: "available" } }),
     prisma.video.create({ data: { influencerId: redeTela.id, title: "From the Landfill Book to a Global Business that Blesses Thousands | Matheus Tomoto",  description: "From extreme childhood poverty to Harvard and a global business — a story of faith and purpose.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt5/640/360", tags: JSON.stringify(["overcoming", "business", "faith", "missions"]), status: "available" } }),
-    prisma.video.create({ data: { influencerId: redeTela.id, title: "The Secret of Biblical Prosperity | With Erick Couto",                                description: "What the Bible truly teaches about prosperity and how to apply biblical principles in business.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt6/640/360", tags: JSON.stringify(["prosperity", "faith", "financial stewardship"]), status: "available" } }),
-    // vrt7 — latest channel video (belongs to tela, with REAL clips by Muscle Minds)
-    prisma.video.create({ data: { influencerId: tela.id, title: "The Messenger of Progress (From Fatherlessness to Success) | With Gabriel Ferraz", description: "From fatherlessness to success — the real story of overcoming, purpose and faith by Gabriel Ferraz.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt7/640/360", tags: JSON.stringify(["overcoming", "fatherhood", "purpose", "business"]), status: "in_campaign" } }),
-  ]);
+	    prisma.video.create({ data: { influencerId: redeTela.id, title: "The Secret of Biblical Prosperity | With Erick Couto",                                description: "What the Bible truly teaches about prosperity and how to apply biblical principles in business.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt6/640/360", tags: JSON.stringify(["prosperity", "faith", "financial stewardship"]), status: "available" } }),
+	    // vrt7 — latest channel video (belongs to tela, with REAL clips by Muscle Minds)
+	    prisma.video.create({ data: { influencerId: tela.id, title: "The Messenger of Progress (From Fatherlessness to Success) | With Gabriel Ferraz", description: "From fatherlessness to success — the real story of overcoming, purpose and faith by Gabriel Ferraz.", originalUrl: "https://www.youtube.com/c/telanegociosemissoes", platform: "youtube", thumbnailUrl: "https://picsum.photos/seed/rt7/640/360", tags: JSON.stringify(["overcoming", "fatherhood", "purpose", "business"]), status: "in_campaign" } }),
+	  ]);
+  void _v3;
+  void _v12;
+  void _vrt4;
+  void _vrt5;
+  void _vrt6;
 
   // ─── Missions (Campaigns) ────────────────────────────────────────────────
   const [miss1, miss2, miss3, miss4, miss5, miss6, miss7,

@@ -33,12 +33,25 @@ export default function CreatorSettingsPage() {
   async function handleSave() {
     if (!user) return;
     setSaving(true);
-    await fetch(`/api/users/${user.userId}`, {
+    const res = await fetch(`/api/users/${user.userId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-user-id": user.userId },
       body: JSON.stringify({ name, avatarUrl: avatarUrl || null }),
     });
-    updateUser({ name, avatarUrl: avatarUrl || undefined });
+    if (!res.ok) {
+      setSaving(false);
+      return;
+    }
+
+    const json = await res.json();
+    const updated = json.data;
+    updateUser({
+      name: updated.name,
+      email: updated.email,
+      avatarUrl: updated.avatarUrl,
+    });
+    setName(updated.name);
+    setAvatarUrl(updated.avatarUrl || "");
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

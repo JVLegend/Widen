@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 /**
  * Standard API response helper.
@@ -16,6 +17,16 @@ export function apiServerError(err: unknown) {
   const message = err instanceof Error ? err.message : "Erro interno do servidor";
   console.error("[API Error]", err);
   return NextResponse.json({ data: null, error: message }, { status: 500 });
+}
+
+export function getCurrentUserId(request: NextRequest): string | null {
+  return request.headers.get("x-user-id");
+}
+
+export function requireCurrentUser(request: NextRequest): string | Response {
+  const userId = getCurrentUserId(request);
+  if (!userId) return apiError("Usuário não autenticado", 401);
+  return userId;
 }
 
 /**

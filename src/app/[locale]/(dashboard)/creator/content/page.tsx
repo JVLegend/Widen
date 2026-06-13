@@ -104,10 +104,14 @@ export default function CreatorContentPage() {
   }, [user]);
 
   async function syncMetrics(clip: ClipWithDetails) {
+    if (!user) return;
     setSyncingId(clip.id);
     setSyncResult(null);
     try {
-      const res = await fetch(`/api/clips/${clip.id}/sync`, { method: "POST" });
+      const res = await fetch(`/api/clips/${clip.id}/sync`, {
+        method: "POST",
+        headers: { "x-user-id": user.userId },
+      });
       const json = await res.json();
       if (res.ok) {
         setSyncResult({ id: clip.id, ok: true, msg: `Synced: ${json.data?.synced?.views?.toLocaleString() ?? 0} views` });
@@ -131,10 +135,10 @@ export default function CreatorContentPage() {
   }
 
   async function saveMetrics() {
-    if (!metricsClip) return;
+    if (!metricsClip || !user) return;
     await fetch(`/api/clips/${metricsClip.id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-user-id": user.userId },
       body: JSON.stringify({
         views: parseInt(views) || 0,
         likes: parseInt(likes) || 0,
@@ -200,6 +204,7 @@ export default function CreatorContentPage() {
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   {thumbFor(clip) && (
+                    // eslint-disable-next-line @next/next/no-img-element -- Clip thumbnails are resolved from user-connected external platforms.
                     <img src={thumbFor(clip)!} alt="" className="h-16 w-28 shrink-0 rounded object-cover" />
                   )}
                   <div className="flex-1 min-w-0">

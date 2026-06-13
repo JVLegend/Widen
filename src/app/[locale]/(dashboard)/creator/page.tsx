@@ -145,7 +145,10 @@ export default function CreatorHomePage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 rounded-lg border border-amber-100 p-3 transition-colors hover:bg-amber-50/60 active:scale-[0.99]"
                   >
-                    {thumb && <img src={thumb} alt="" className="h-10 w-16 rounded object-cover" />}
+                    {thumb && (
+                      // eslint-disable-next-line @next/next/no-img-element -- Clip thumbnails are resolved from user-connected external platforms.
+                      <img src={thumb} alt="" className="h-10 w-16 rounded object-cover" />
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate text-gray-900">{clip.campaign.name}</p>
                       <p className="text-xs text-gray-600">

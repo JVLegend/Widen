@@ -10,11 +10,36 @@ type VideoMetadata = {
   platform: string;
 };
 
+const SUPPORTED_HOSTS = [
+  "youtube.com",
+  "youtu.be",
+  "instagram.com",
+  "tiktok.com",
+];
+
 function detectPlatform(url: string): string {
   if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube";
   if (url.includes("instagram.com")) return "instagram";
   if (url.includes("tiktok.com")) return "tiktok";
   return "";
+}
+
+function isSupportedUrl(url: URL): boolean {
+  if (!["http:", "https:"].includes(url.protocol)) return false;
+  const host = url.hostname.replace(/^www\./, "").toLowerCase();
+  return SUPPORTED_HOSTS.some((supported) => host === supported || host.endsWith(`.${supported}`));
+}
+
+type NextFetchInit = RequestInit & { next?: { revalidate?: number } };
+
+async function fetchWithTimeout(url: string, init: NextFetchInit = {}, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function decodeHtml(value: string): string {
@@ -50,7 +75,7 @@ function getArticleTags(html: string): string[] {
 
 async function fetchYouTubeOEmbed(url: string, videoId: string): Promise<Partial<VideoMetadata> | null> {
   try {
-    const res = await fetch(
+    const res = await fetchWithTimeout(
       `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`,
       { next: { revalidate: 0 } },
     );
@@ -68,7 +93,7 @@ async function fetchYouTubeOEmbed(url: string, videoId: string): Promise<Partial
 
 async function fetchOpenGraphMetadata(url: string): Promise<Partial<VideoMetadata> | null> {
   try {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; WidenBot/1.0)",
         Accept: "text/html,application/xhtml+xml",
@@ -102,11 +127,13 @@ export async function GET(request: NextRequest) {
 
     if (!url) return apiError("URL obrigatória");
 
+    let parsedUrl: URL;
     try {
-      new URL(url);
+      parsedUrl = new URL(url);
     } catch {
       return apiError("URL inválida");
     }
+    if (!isSupportedUrl(parsedUrl)) return apiError("Plataforma de vídeo não suportada", 400);
 
     const platform = detectPlatform(url);
     const youtubeId = extractYouTubeVideoId(url);

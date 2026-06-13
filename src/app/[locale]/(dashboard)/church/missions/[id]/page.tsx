@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 import { useLocale } from "@/hooks/use-locale";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,13 +15,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { CampaignDetail, ClipWithDetails } from "@/lib/types";
 
 export default function MissionDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const { locale, t } = useLocale();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [campaign, setCampaign] = useState<any>(null);
+  const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", budget: "", instructions: "", startDate: "", endDate: "" });
@@ -29,7 +31,7 @@ export default function MissionDetailPage() {
   const [ending, setEnding] = useState(false);
 
   function openEdit() {
-    if (!campaign) return;
+    if (!campaign || !user) return;
     setEditForm({
       name: campaign.name || "",
       budget: String(campaign.budget ?? ""),
@@ -41,12 +43,12 @@ export default function MissionDetailPage() {
   }
 
   async function saveEdit() {
-    if (!campaign) return;
+    if (!campaign || !user) return;
     setSaving(true);
     try {
       const res = await fetch(`/api/campaigns/${campaign.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user.userId },
         body: JSON.stringify({
           name: editForm.name,
           budget: parseFloat(editForm.budget) || 0,
@@ -72,13 +74,13 @@ export default function MissionDetailPage() {
   }, [params.id]);
 
   async function toggleStatus() {
-    if (!campaign || campaign.status === "completed") return;
+    if (!campaign || !user || campaign.status === "completed") return;
     const newStatus = campaign.status === "active" ? "paused" : "active";
     setStatusSaving(true);
     try {
       const res = await fetch(`/api/campaigns/${campaign.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user.userId },
         body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) setCampaign({ ...campaign, status: newStatus });
@@ -88,7 +90,7 @@ export default function MissionDetailPage() {
   }
 
   async function endMission() {
-    if (!campaign || campaign.status === "completed") return;
+    if (!campaign || !user || campaign.status === "completed") return;
     const confirmed = window.confirm(
       locale === "br"
         ? "Encerrar esta missão agora? Ela deixará de aceitar novos conteúdos."
@@ -100,7 +102,7 @@ export default function MissionDetailPage() {
     try {
       const res = await fetch(`/api/campaigns/${campaign.id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-user-id": user.userId },
         body: JSON.stringify({ status: "completed" }),
       });
       if (res.ok) setCampaign({ ...campaign, status: "completed" });
@@ -121,8 +123,7 @@ export default function MissionDetailPage() {
     return <p className="py-20 text-center text-gray-600">{t.common.noResults}</p>;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const totalViews = campaign.clips?.reduce((sum: number, c: any) => sum + c.views, 0) || 0;
+  const totalViews = campaign.clips?.reduce((sum: number, clip: ClipWithDetails) => sum + clip.views, 0) || 0;
   const totalClips = campaign.clips?.length || 0;
 
   return (
@@ -225,8 +226,7 @@ export default function MissionDetailPage() {
             <p className="py-4 text-center text-sm text-gray-600">{t.church.noMissions}</p>
           ) : (
             <div className="space-y-3">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {campaign.clips.map((clip: any) => (
+              {campaign.clips.map((clip) => (
                 <div key={clip.id} className="flex items-center gap-3 rounded-lg border border-amber-100 p-3">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={clip.clipper.avatarUrl || undefined} />

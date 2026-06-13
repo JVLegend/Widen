@@ -9,19 +9,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HelpButton } from "@/components/dashboard/help-button";
 import { PLATFORM_LABELS } from "@/lib/constants";
 import { Sparkles, Calendar, Film } from "lucide-react";
+import type { CampaignListItem } from "@/lib/types";
 
 export default function CreatorMissionsPage() {
   const { locale, t } = useLocale();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/campaigns?active=true")
       .then((r) => r.json())
       .then((d) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const real = (d.data || []).filter((c: any) => !c.influencer?.email?.endsWith("@example.com"));
+        const real = ((d.data || []) as CampaignListItem[]).filter((c) => !c.influencer?.email?.endsWith("@example.com"));
         setCampaigns(real);
         setLoading(false);
       });
@@ -81,8 +80,8 @@ export default function CreatorMissionsPage() {
                     {/* Sermon thumbnails */}
                     {c.campaignVideos?.length > 0 && (
                       <div className="mt-3 flex gap-2 overflow-x-auto">
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {c.campaignVideos.map((cv: any) => cv.video.thumbnailUrl && (
+                        {c.campaignVideos.map((cv) => cv.video.thumbnailUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element -- External sermon thumbnails come from user-provided platform URLs.
                           <img
                             key={cv.video.id}
                             src={cv.video.thumbnailUrl}
